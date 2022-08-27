@@ -1,4 +1,4 @@
-# eunomia-bpf 用户手册: 让 eBPF 的开发尽可能简单
+# eunomia-bpf 用户手册: 让 eBPF 程序的开发和部署尽可能简单
 
 传统来说， eBPF 的开发方式主要有 BCC、libbpf 等方式。要完成一个 BPF 二进制程序的开发，需要搭建开发编译环境，要关注目标系统的内核版本情况，需要掌握从 BPF 内核态到用户态程序的编写，以及如何加载、绑定至对应的 HOOK 点等待事件触发，最后再对输出的日志及数据进行处理。
 
@@ -175,11 +175,22 @@ b1-->b2
 end
 ```
 
+## 使用 github-template 实现远程编译：
+
+由于 eunomia-bpf 的编译和运行阶段完全分离，可以实现在 github 网页上编辑之后，通过 github actions 来完成编译，之后在本地一行命令即可启动：
+
+1. 将此 [github.com/eunomia-bpf/ebpm-template](https://github.com/eunomia-bpf/ebpm-template) 用作 github 模板：请参阅 [creating-a-repository-from-a-template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
+2. 修改 bootstrap.bpf.c， commit 并等待工作流停止
+3. 我们配置了 github pages 来完成编译好的 json 的导出，之后就可以实现 ecli 使用远程 url 一行命令即可运行：
+
+```sh
+$ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
+```
+
 ## 使用说明
 
 1. 我们使用与 libbpf 相同的 c eBPF 代码，因此大多数 libbpf eBPF c 代码无需任何修改即可运行。
 2. 支持的 eBPF 程序类型：`kprobe`, `tracepoint`, `fentry`, 未来我们会增加更多类型。
-
 3. 如果你想使用环形缓冲区来导出事件，你需要添加 `your_program.bpf.h` 到你的 repo，并在其中定义导出数据类型，导出数据类型应该是 C struct，例如：
     ```c
     struct process_event {
@@ -193,15 +204,21 @@ end
     };
     ```
     导出的名称和字段类型不受限制，但最好使用标准 C 类型。如果标头中存在多个 struct，我们现阶段将使用第一个作为导出的数据类型。仅当我们发现 eBPF 程序中存在 `BPF_MAP_TYPE_RINGBUF` 的 map 时，才启用环形缓冲区导出的功能。
+4. 目前部分低版本内核对于 ebpf 模块的支持并不完善，同时也可能没有附带 BTF 信息，因此有可能一些 eBPF 程序在低版本内核上运行时不能得到预期的结果。详情请参考 libbpf 对应的文档：[libbpf/libbpf](https://github.com/libbpf/libbpf) 我们未来会在这方面继续提升兼容性。
 
 ## 为我们的项目添加测试
 
 我们的项目还在早期阶段，因此非常希望有您的帮助：
 
-运行时库地址：https://github.com/eunomia-bpf/eunomia-bpf
-编译器地址：https://github.com/eunomia-bpf/eunomia-cc
+- 运行时库地址：https://github.com/eunomia-bpf/eunomia-bpf
+- 编译器地址：https://github.com/eunomia-bpf/eunomia-cc
+- gitee 镜像：https://gitee.com/anolis/eunomia
+- 文档：https://github.com/eunomia-bpf/eunomia-bpf.github.io
 
-需要添加测试的话，可以参考：
+您可以帮助我们添加测试或者示例，可以参考：
 
 - https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples
 - https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests
+
+由于现在 API 还不稳定，如果您在试用中遇到任何问题或者任何流程/文档不完善的地方，请在 gitee 或 github issue 留言，
+我们会尽快修复；也非常欢迎进一步的 PR 提交和贡献！也非常希望您能提出一些宝贵的意见或者建议！
