@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Eunomia BPF Package Schema",
+  "title": "Eunomia BPF Configuration Schema",
   "type": "object",
   "properties": {
     "name": { "type": "string" },
