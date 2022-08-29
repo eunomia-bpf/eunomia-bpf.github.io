@@ -3,10 +3,10 @@ name: GitHub Pages
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
           mdbook-version: latest
       - run: mdbook build
       - name: Upload artifact
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v1
         with:
           path: public
