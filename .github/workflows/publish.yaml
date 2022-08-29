@@ -17,7 +17,7 @@ jobs:
         uses: peaceiris/actions-mdbook@v1
         with:
           mdbook-version: latest
-       - run: mdbook build
+      - run: mdbook build
       - name: Upload artifact
         if: github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v1
