@@ -200,8 +200,8 @@ end
 2. 修改 bootstrap.bpf.c， commit 并等待工作流停止
 3. 我们配置了 github pages 来完成编译好的 json 的导出，之后就可以实现 ecli 使用远程 url 一行命令即可运行：
 
-```sh
-sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
+```console
+# curl https://eunomia-bpf.github.io/ebpm-template/package.json | ecli run
 ```
 
 ## 使用说明
