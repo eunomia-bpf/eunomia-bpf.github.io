@@ -28,7 +28,7 @@ Eunomia 包含如下几个项目：
 
 ## 项目地址
 
-- https://gitee.com/anolis/eunomia
-- https://github.com/eunomia-bpf/eunomia-bpf
-- https://github.com/eunomia-bpf/eunomia-cc
-- https://github.com/eunomia-bpf/ebpm-template
+- [https://gitee.com/anolis/eunomia](https://gitee.com/anolis/eunomia)
+- [https://github.com/eunomia-bpf/eunomia-bpf](https://github.com/eunomia-bpf/eunomia-bpf)
+- [https://github.com/eunomia-bpf/eunomia-cc](https://github.com/eunomia-bpf/eunomia-cc)
+- [https://github.com/eunomia-bpf/ebpm-template](https://github.com/eunomia-bpf/ebpm-template)

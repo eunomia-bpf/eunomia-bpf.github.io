@@ -10,6 +10,7 @@
 - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
 - [通过 API 进行热插拔和分发：](#通过-api-进行热插拔和分发)
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
+    - [example](#example)
 - [使用说明](#使用说明)
 - [为我们的项目贡献代码](#为我们的项目贡献代码)
 
@@ -204,15 +205,45 @@ $ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 
 由于 eunomia-cc 编译出来的 ebpf 程序代码和附加信息很小（约数十kb），且不需要同时传递任何的额外依赖，因此我们可以非常方便地通过网络 API 直接进行分发，也可以在很短的时间（大约100ms）内实现热插拔和热更新。我们提供了一个简单的 client 和 server，请参考;
 
-https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md
+[https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md](https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md)
 
 之前也有一篇比赛项目的可行性验证的文章：
 
-https://zhuanlan.zhihu.com/p/555362934
+[https://zhuanlan.zhihu.com/p/555362934](https://zhuanlan.zhihu.com/p/555362934)
 
 ## 使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集
 
-我们正在使用 Rust 编写一个可观测性的 exporter，将 eBPF 程序上报的数据暴露给用户态：[eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)
+基于 async Rust 的 Prometheus 或 OpenTelemetry 自定义可观测性数据收集器: [eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)
+
+可以自行编译或通过 [release](https://github.com/eunomia-bpf/eunomia-bpf/releases/) 下载
+
+#### example
+
+这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [bpftools/examples/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop)
+
+在编译之后，可以定义一个这样的配置文件:
+
+```yml
+programs:
+- name: opensnoop
+  metrics:
+    counters:
+    - name: eunomia_file_open_counter
+      description: test
+      labels:
+      - name: pid
+      - name: comm
+      - name: filename
+        from: fname
+  compiled_ebpf_filename: bpftools/examples/opensnoop/package.json
+```
+
+然后，您可以在任何地方使用 `config.yaml` 和预编译的 eBPF 数据 `package.json` 启动 Prometheus 导出器，您可以看到如下指标：
+
+![prometheus](https://oss.openanolis.cn/sig/stxfomyiiwdwkdrqwlnn)
+
+您可以在任何内核版本上部署导出器，而无需依赖 `LLVM/Clang`。 有关详细信息，请参阅 [eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)。
+
 
 ## 使用说明
 
@@ -240,9 +271,9 @@ https://zhuanlan.zhihu.com/p/555362934
 
 我们的项目还在早期阶段，因此非常希望有您的帮助：
 
-- 运行时库地址：<https://github.com/eunomia-bpf/eunomia-bpf>
-- 编译器地址：<https://github.com/eunomia-bpf/eunomia-cc>
-- 文档：<https://github.com/eunomia-bpf/eunomia-bpf.github.io>
+- 运行时库地址： [https://github.com/eunomia-bpf/eunomia-bpf](https://github.com/eunomia-bpf/eunomia-bpf)
+- 编译器地址： [https://github.com/eunomia-bpf/eunomia-cc](https://github.com/eunomia-bpf/eunomia-cc)
+- 文档：[https://github.com/eunomia-bpf/eunomia-bpf.github.io](https://github.com/eunomia-bpf/eunomia-bpf.github.io)
 
 eunomia-bpf 也已经加入了龙蜥社区：
 
@@ -250,8 +281,8 @@ eunomia-bpf 也已经加入了龙蜥社区：
 
 您可以帮助我们添加测试或者示例，可以参考：
 
-- <https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples>
-- <https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests>
+- [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples)
+- [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests)
 
 由于现在 API 还不稳定，如果您在试用中遇到任何问题或者任何流程/文档不完善的地方，请在 gitee 或 github issue 留言，
 我们会尽快修复；也非常欢迎进一步的 PR 提交和贡献！也非常希望您能提出一些宝贵的意见或者建议！

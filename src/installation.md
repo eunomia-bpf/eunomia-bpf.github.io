@@ -9,7 +9,7 @@ $ # download the release from https://github.com/eunomia-bpf/eunomia-bpf/release
 $ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ecli
 ```
 
-You can also found exporter and other tools in https://github.com/eunomia-bpf/eunomia-bpf/releases
+You can also found exporter and other tools in [github.com/eunomia-bpf/eunomia-bpf/releases](https://github.com/eunomia-bpf/eunomia-bpf/releases)
 
 ## build from source
 
@@ -25,4 +25,4 @@ try:
 sudo apt-get upgrade libstdc++6
 ```
 
-see https://stackoverflow.com/questions/65349875/where-can-i-find-glibcxx-3-4-29
+see [https://stackoverflow.com/questions/65349875/where-can-i-find-glibcxx-3-4-29](https://stackoverflow.com/questions/65349875/where-can-i-find-glibcxx-3-4-29)

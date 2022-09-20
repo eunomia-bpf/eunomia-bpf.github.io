@@ -48,13 +48,13 @@ $ sudo ./ecli run bpftools/examples/bootstrap/package.json              # run th
 
 ### 一个可观测性工具
 
-基于 async Rust 的 Prometheus 或 OpenTelemetry 自定义可观测性数据收集器: [eunomia-exporter](eunomia-exporter)
+基于 async Rust 的 Prometheus 或 OpenTelemetry 自定义可观测性数据收集器: [eunomia-exporter]([eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter))
 
-You can compile it or download from [release](https://github.com/eunomia-bpf/eunomia-bpf/releases/)
+可以自行编译或通过 [release](https://github.com/eunomia-bpf/eunomia-bpf/releases/) 下载
 
 #### example
 
-This is an adapted version of `opensnoop` from [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 源代码在这里: [bpftools/examples/opensnoop](bpftools/examples/opensnoop)
+这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [bpftools/examples/opensnoop]([bpftools/examples/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop))
 
 在编译之后，可以定义一个这样的配置文件:
 
@@ -75,6 +75,6 @@ programs:
 
 然后，您可以在任何地方使用 `config.yaml` 和预编译的 eBPF 数据 `package.json` 启动 Prometheus 导出器，您可以看到如下指标：
 
-![opensnoop_prometheus](documents/opensnoop_prometheus.png)
+![prometheus](https://oss.openanolis.cn/sig/stxfomyiiwdwkdrqwlnn)
 
 您可以在任何内核版本上部署导出器，而无需依赖 `LLVM/Clang`。 有关详细信息，请参阅 [eunomia-exporter](eunomia-exporter/README.md)。

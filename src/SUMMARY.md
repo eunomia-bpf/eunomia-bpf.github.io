@@ -29,4 +29,4 @@
 - [编译工具链](ecc/index.md)
   - [使用 lua 进行可选配置](ecc/config.md)
   - [Github 模板](ecc/github-template.md)
-  - [在线体验网站](https://bolipi.com/ebpf/home/online)
+  - [在线体验网站](ecc/online.md)
