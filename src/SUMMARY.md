@@ -30,4 +30,5 @@
 - [Compile toolchain](ecc/index.md)
   - [Github template](ecc/github-template.md)
   - [Online experience](ecc/online.md)
+  - [Usgae](ecc/usage.md)
   - [Config with lua(Optional)](ecc/config.md)
