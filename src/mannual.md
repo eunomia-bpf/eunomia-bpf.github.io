@@ -85,8 +85,6 @@ int handle_tp(void *ctx)
 
 假设它叫 `hello.bpf.c`，新建一个 `/path/to/repo` 的文件夹并且把它放进去，接下来的步骤：
 
-[Install](install.md#install)
-
 ```console
 $ # 下载安装 ecli 二进制
 $ wget https://aka.pw/bpf-ecli -O /usr/local/ecli && chmod +x /usr/local/ecli
