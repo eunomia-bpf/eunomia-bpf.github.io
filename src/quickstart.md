@@ -1,23 +1,23 @@
-# 快速上手
+# Quick Start
 
 ## Github Template
 
-可以使用 Github Template 来快速上手，使用该项目作为模板：[https://github.com/eunomia-bpf/ebpm-template](https://github.com/eunomia-bpf/ebpm-template)
+Use this as a github action, to compile online or as an template：[https://github.com/eunomia-bpf/ebpm-template](https://github.com/eunomia-bpf/ebpm-template)
 
-## 在线体验网站
+## Online Experience
 
-可使用 bolipi 提供的在线体验服务，在线编译，在线运行、在线获取可视化结果：[https://bolipi.com/ebpf/home/online](https://bolipi.com/ebpf/home/online)
+You can use the online experience service provided by `bolipi`, compile online, run online, and obtain visualization results online：[https://bolipi.com/ebpf/home/online](https://bolipi.com/ebpf/home/online)
 
 ## Hello World
 
-新建一个项目，并在其中添加 `hello.bpf.c` 文件：
+Create a new project:
 
 ```sh
 $ mkdir hello
 $ cd hello
 ```
 
-在 hello 文件夹中新建一个 hello.bpf.c 的内容如下：
+Create a new `hello.bpf.c` in the hello folder with the following content:
 
 ```c
 #include <linux/bpf.h>
@@ -37,7 +37,7 @@ int handle_tp(void *ctx)
 }
 ```
 
-假设 hello 文件夹的父目录是 `/path/to/repo`，接下来的步骤：
+Assuming the parent directory of the hello folder is `/path/to/repo`, the next steps:
 
 ```console
 $ # 下载安装 ecli 二进制
@@ -47,9 +47,10 @@ $ docker run -it -v /path/to/repo/hello:/src yunwei37/ebpm:latest
 $ # 运行 eBPF 程序（root shell）
 $ sudo ./ecli run package.json  
 ```
-> 使用 docker 的时候需要把包含 .bpf.c 文件的目录挂载到容器的 /src 目录下，目录中只有一个 .bpf.c 文件；
 
-它会追踪所有进行 write 系统调用的进程的 pid：
+> When using docker, you need to mount the directory containing the .bpf.c file to the /src directory of the container, and there is only one .bpf.c file in the directory;
+
+It keeps track of the pids of all processes making the `write` system call:
 
 ```console
 $ sudo cat /sys/kernel/debug/tracing/trace_pipe
@@ -57,5 +58,5 @@ cat-42755   [003] d...1 48755.529860: bpf_trace_printk: BPF triggered from PID 4
              cat-42755   [003] d...1 48755.529874: bpf_trace_printk: BPF triggered from PID 42755.
 ```
 
-我们编译好的 eBPF 代码同样可以适配多种内核版本，可以直接把 package.json 复制到另外一个机器上，然后不需要重新编译就可以直接运行（CO-RE：Compile Once Run Every Where）；也可以通过网络传输和分发 package.json，通常情况下，压缩后的版本只有几 kb 到几十 kb。
+Our compiled eBPF code can also be adapted to multiple kernel versions. You can directly copy package.json to another machine, and then run it directly without recompiling (CO-RE: Compile Once Run Every Where). `package.json` can be transmitted and distributed over the network, usually, the compressed version is only a few kb to tens of kb.
 
