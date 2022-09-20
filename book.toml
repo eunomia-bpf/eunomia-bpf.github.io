@@ -1,6 +1,6 @@
 [book]
-authors = ["Septs"]
+authors = ["Septs", "yunwei37"]
 language = "en"
 multilingual = false
 src = "src"
-title = "eunomia BPF toolchain"
+title = "eunomia-bpf toolchain"

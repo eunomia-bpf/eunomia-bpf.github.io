@@ -10,6 +10,7 @@
 - [eunomia-bpf 的实现原理](#eunomia-bpf-的实现原理)
 - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
 - [通过 API 进行热插拔和分发：](#通过-api-进行热插拔和分发)
+- [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
 - [使用说明](#使用说明)
 - [为我们的项目贡献代码](#为我们的项目贡献代码)
 
@@ -83,7 +84,7 @@ int handle_tp(void *ctx)
 }
 ```
 
-假设它叫 `hello.bpf.c`，并且假设他在 `/path/to/repo` 目录下，接下来的步骤：
+假设它叫 `hello.bpf.c`，新建一个 `/path/to/repo` 的文件夹并且把它放进去，接下来的步骤：
 
 [Install](install.md#install)
 
@@ -197,7 +198,7 @@ eunomia-bpf 主要分为两个部分：
 一个运行时库 `eunomia-bpf`：<https://github.com/eunomia-bpf/eunomia-bpf>
 一个 eBPF 编译工具链 `eunomia-cc`：<https://github.com/eunomia-bpf/eunomia-cc>
 
-![原理](img/eunomia-bpf-flow.png)
+![](https://oss.openanolis.cn/sig/xnjcdsgbnuhfnqscaidh)
 
 <!-- mermaid
 graph TD
@@ -228,9 +229,8 @@ end
 3. 我们配置了 github pages 来完成编译好的 json 的导出，之后就可以实现 ecli 使用远程 url 一行命令即可运行：
 
 ```console
-# curl https://eunomia-bpf.github.io/ebpm-template/package.json | ecli run
+$ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 ```
-
 
 ## 通过 API 进行热插拔和分发：
 
@@ -238,10 +238,18 @@ end
 
 https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md
 
+之前也有一篇比赛项目的可行性验证的文章：
+
+https://zhuanlan.zhihu.com/p/555362934
+
+## 使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集
+
+我们正在使用 Rust 编写一个可观测性的 exporter，将 eBPF 程序上报的数据暴露给用户态：[eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)
+
 ## 使用说明
 
 1. 我们使用与 libbpf 相同的 c eBPF 代码，因此大多数 libbpf eBPF c 代码无需任何修改即可运行。
-2. 支持的 eBPF 程序类型：`kprobe`, `tracepoint`, `fentry`, 未来我们会增加更多；
+2. 支持的 eBPF 程序类型：`kprobe`, `tracepoint`, `fentry`, `lsm` 未来我们会增加更多；
 3. 如果你想使用环形缓冲区来导出事件，你需要添加 `your_program.bpf.h` 到你的 repo，并在其中定义导出数据类型，导出数据类型应该是 C struct，例如：
 
    ```c
@@ -266,8 +274,11 @@ https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md
 
 - 运行时库地址：<https://github.com/eunomia-bpf/eunomia-bpf>
 - 编译器地址：<https://github.com/eunomia-bpf/eunomia-cc>
-- gitee 镜像：<https://gitee.com/anolis/eunomia>
 - 文档：<https://github.com/eunomia-bpf/eunomia-bpf.github.io>
+
+eunomia-bpf 也已经加入了龙蜥社区：
+
+- gitee 镜像：<https://gitee.com/anolis/eunomia>
 
 您可以帮助我们添加测试或者示例，可以参考：
 
