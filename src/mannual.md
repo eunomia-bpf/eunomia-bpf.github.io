@@ -7,7 +7,6 @@
 - [添加 map 记录数据](#添加-map-记录数据)
 - [使用 ring buffer 往用户态发送数据](#使用-ring-buffer-往用户态发送数据)
 - [使用 perf event array 往用户态发送数据](#使用-perf-event-array-往用户态发送数据)
-- [eunomia-bpf 的实现原理](#eunomia-bpf-的实现原理)
 - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
 - [通过 API 进行热插拔和分发：](#通过-api-进行热插拔和分发)
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
@@ -190,35 +189,6 @@ struct {
 ```
 
 可以参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop 它是直接从 libbpf-tools 中移植的实现；
-
-## eunomia-bpf 的实现原理
-
-eunomia-bpf 主要分为两个部分：
-
-一个运行时库 `eunomia-bpf`：<https://github.com/eunomia-bpf/eunomia-bpf>
-一个 eBPF 编译工具链 `eunomia-cc`：<https://github.com/eunomia-bpf/eunomia-cc>
-
-![](https://oss.openanolis.cn/sig/xnjcdsgbnuhfnqscaidh)
-
-<!-- mermaid
-graph TD
-
-b3->package
-package->a1
-package(可通过网络或其他方式进行分发: CO-RE)
-subgraph eunomia-bpf: 运行时库
-a1(根据配置信息和 eBPF 源代码里的类型信息, 动态装载 eBPF 程序)
-a2(根据 c 类型信息和内存布局信息对用户态导出事件进行处理)
-a1->a2
-end
-subgraph eunomia-cc: eBPF 编译工具链
-b1(使用 libbpf 框架编译 eBPF 程序获得包含重定位信息的 bpf.o)
-b2(添加从 eBPF 源代码的 AST 和导出的内存布局, 类型信息等)
-b3(从注解或配置文件添加其他用户态配置信息并打包)
-b2->b3
-b1->b2
-end
- -->
 
 ## 使用 github-template 实现远程编译
 

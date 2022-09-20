@@ -6,5 +6,8 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.associations": {
     "LICENSE": "plaintext"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
   }
 }

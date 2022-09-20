@@ -2,17 +2,29 @@
 
 <!-- markdownlint-disable MD025 -->
 
+- [Introduction](introduction.md)
+
 # 用户手册
 
 - [安装](installation.md)
-- [使用方法](usage.md)
+- [使用手册](mannual.md)
+
+# 系统架构
+
+- [架构](architecture/index.md)
+  - [概述](architecture/overview.md)
+  - [工作原理](architecture/reason.md)
+
 # 参考手册
 
 - [命令行工具](ecli/index.md)
-- [可观测性数据收集器]()
-- [架构设计](architecture/index.md)
-  - [Hello](architecture/hello.md)
-  - [Service layer](architecture/service-layer.md)
-  - [Dispatch](architecture/dispatch.md)
-  - [config.json](architecture/config-dot-json.md)
-  - [package.json](architecture/package-dot-json.md)
+  - [ecli server](ecli/server.md)
+  - [ecli run](ecli/run.md)
+- [可观测性数据收集器](exporter/index.md)
+  - [使用说明](exporter/usage.md)
+  - [性能测试](exporter/benchmark.md)
+  - [设计草稿](exporter/design.md)
+- [编译工具链](ecc/index.md)
+  - [使用 lua 进行可选配置](ecc/config.md)
+  - [Github 模板](ecc/github-template.md/)
+  - [在线体验网站](https://bolipi.com/ebpf/home/online)

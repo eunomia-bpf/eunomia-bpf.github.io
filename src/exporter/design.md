@@ -1,4 +1,6 @@
-# ebpf exporter
+# 设计草稿
+
+对比基于 bcc 的 cloudflare/ebpf_exporter，并给出一些简单的设计草稿
 
 ## 基于 bcc 的 cloudflare/ebpf_exporter
 
@@ -29,49 +31,3 @@ eBPF Exporter 是一个将自定义BPF跟踪数据导出到prometheus的工具�
 也许可以使用 eunomia-exporter 对于基于 libbpf 的追踪器进行统一的指标导出，使用 cloudflare/ebpf_exporter 对于基于 BCC 的追踪器进行统一的指标导出？通过统一的 API 和后端对接和管理；
 
 说不定 eunomia-exporter 也可以起到替代许老师之前说的，使用 BCC 的一个统一的命令行接口的效果；
-
-## next
-
-小工具的快速上手？
-
-需要一个编译完成之后的包管理器，让其他人能快速体验 LMP 里面的小工具？
-
-有一个类似于 cargo 的网站，里面有很多编译好的 eBPF 插件，可以直接下载使用，也可以在网页上修改、编译，形成新的小工具；再下载使用；
-
-只需要安装一个 LMP 的 docker 镜像或者二进制（镜像或者二进制很小，只需要几十 MB 或者十几 MB），就可以通过一行命令直接运行使用 LMP 里面的小工具：
-
-比如
-```
-lmp install opensnoop
-```
-
-就能打开浏览器看到可视化的结果，不需要安装什么东西也不需要去使用命令行；
-
-可以不需要配置文件，如果不需要配置文件就是默认执行一个 eBPF 程序，并且默认从 map 里面获取信息
-
-类似于 xmake 和 https://github.com/iovisor/bcc/tree/master/examples/lua 的设计，lua 作为一些可选项，用来帮助完成构建和一些简单的处理
-
-```lua
-target("ebpf_program1") -- basic
-    add_files("src/opensnoop.bpf.c")
-
-target("ebpf_program1")
-    set_kind("uprobe")
-    attach_to("handler_entry_uprobe", "lua_pcall") -- attach to lua_pcall in uprobe
-    on_event(function (event)
-        sort(event)
-        os.print("uprobe event: ", event)
-        stop("ebpf_program1")
-    end)
-    add_files("src/uprobe.bpf.c")
-
-entry(function (arg)   -- replace the default entry with 
-    if arg == "uprobe" then
-        run("ebpf_program1")
-        sleep(1000)
-        run("ebpf_program2")
-    else
-        run("ebpf_program1")
-    end
-end)
-```
