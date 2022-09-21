@@ -4,3 +4,7 @@ language = "en"
 multilingual = false
 src = "src"
 title = "eunomia-bpf toolchain"
+
+[output.html]
+git-repository-url = "https://github.com/eunomia-bpf/eunomia-bpf"
+git-repository-icon = "fa-github"
