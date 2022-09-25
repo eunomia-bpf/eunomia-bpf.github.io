@@ -1,9 +1,11 @@
-## Eunomia - Funclatency: 使用基于 eBPF 的云原生监控工具监控 Mount/Unmount
+## eBPF 入门实践教程：编写 eBPF 程序监控打开文件路径并使用 Prometheus 可视化
 
 ### 背景
+
 通过对 open 系统调用的监测，`opensnoop`可以展现系统内所有调用了 open 系统调用的进程信息。
 
 ### 实现原理
+
 `opensnoop` 的实现逻辑比较简单，它在 `sys_enter_open` 和 `sys_enter_openat` 这两个追踪点下
 加了执行函数，当有 open 系统调用发生时，执行函数便会被触发。同样在，在对应的 `sys_exit_open` 和 
 `sys_exit_openat` 系统调用下，`opensnoop` 也加了执行函数。

@@ -12,6 +12,7 @@
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
     - [example](#example)
 - [使用说明](#使用说明)
+- [原理](#原理)
 - [为我们的项目贡献代码](#为我们的项目贡献代码)
 
 <!-- /TOC -->
@@ -266,6 +267,31 @@ programs:
    导出的名称和字段类型不受限制，但最好使用标准 C 类型。如果标头中存在多个 struct，我们现阶段将使用第一个作为导出的数据类型。仅当我们发现 eBPF 程序中存在 `BPF_MAP_TYPE_RINGBUF` 的 map 时，才启用环形缓冲区导出的功能。
 
 4. 目前部分低版本内核对于 eBPF 模块的支持并不完善，同时也可能没有附带 BTF 信息，因此有可能一些 eBPF 程序在低版本内核上运行时不能得到预期的结果。详情请参考 libbpf 对应的文档：[libbpf/libbpf](https://github.com/libbpf/libbpf) 我们未来会在这方面继续提升兼容性。
+
+## 原理
+
+```mermaid
+graph TD
+ b3-->package
+  package-->a1
+  package(可通过网络或其他任意方式进行分发: CO-RE)
+
+  subgraph 运行时加载器库
+  a1(根据配置信息和 eBPF 源代码里的类型信息, 动态装载 eBPF 程序)
+  a2(根据类型信息和内存布局信息对用户态导出事件进行动态处理)
+  a1-->a2
+  end
+
+  subgraph eBPF编译工具链 
+  b1(使用 libbpf 框架编译 eBPF 程序获得包含重定位信息的 bpf.o)
+  b2(添加从 eBPF 源代码的 AST 和导出的内存布局, 类型信息等)
+  b3(打包生成 JSON 数据)
+  b4(从注解或配置文件添加其他用户态配置, 处理信息)
+  b2-->b3
+  b4-->b3
+  b1-->b2
+  end
+```
 
 ## 为我们的项目贡献代码
 
