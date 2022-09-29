@@ -1,4 +1,4 @@
-## Eunomia - Bindsnoop: 使用基于 eBPF 的云原生监控工具监控 socket 端口绑定事件
+## eBPF 入门实践教程：编写 eBPF 程序 Bindsnoopn 监控 socket 端口绑定事件
 
 ### 背景
 

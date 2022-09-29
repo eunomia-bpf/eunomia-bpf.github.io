@@ -1,4 +1,4 @@
-## Eunomia - capable: 使用基于 eBPF 的云原生监控工具监控 Capabilities 机制检查
+## eBPF 入门实践教程：编写 eBPF 程序 capable 监控 Capabilities 机制检查
 
 ### 背景
 
