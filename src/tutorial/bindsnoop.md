@@ -9,6 +9,7 @@ Bindsnoop 会跟踪操作 socket 端口绑定的内核函数，并且在可能�
 
 Bindsnoop 通过kprobe实现。其主要挂载点为 inet_bind 和 inet6_bind。inet_bind 为处理 IPV4 类型
 socket 端口绑定系统调用的接口，inet6_bind 为处理IPV6类型 socket 端口绑定系统调用的接口。
+
 ```c
 SEC("kprobe/inet_bind")
 int BPF_KPROBE(ipv4_bind_entry, struct socket *socket)
@@ -46,8 +47,10 @@ int BPF_KRETPROBE(ipv6_bind_exit)
 	return probe_exit(ctx, 6);
 }
 ```
+
 当系统试图进行socket端口绑定操作时, kprobe挂载的处理函数会被触发。在进入绑定函数时，`probe_entry`会先被
 调用，它会以 tid 为主键将 socket 信息存入 map 中。
+
 ```c
 static int probe_entry(struct pt_regs *ctx, struct socket *socket)
 {
@@ -64,6 +67,7 @@ static int probe_entry(struct pt_regs *ctx, struct socket *socket)
 ```
 在执行完绑定函数后，`probe_exit`函数会被调用。该函数会读取tid对应的socket信息，将其和其他信息一起
 写入 event 结构体并输出到用户态。
+
 ```c
 struct bind_event {
 	unsigned __int128 addr;
@@ -78,6 +82,7 @@ struct bind_event {
 	char task[TASK_COMM_LEN];
 };
 ```
+
 当用户停止该工具时，其用户态代码会读取存入的数据并按要求打印。
 
 ### Eunomia中使用方式
@@ -86,4 +91,5 @@ struct bind_event {
 ![result](../imgs/bindsnoop-prometheus.png)
 
 ### 总结
+
 Bindsnoop 通过 kprobe 挂载点，实现了对 socket 端口的监视，增强了 Eunomia 的应用范围。
