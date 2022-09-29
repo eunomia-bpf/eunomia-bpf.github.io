@@ -18,11 +18,6 @@
   - [How it works](architecture/reason.md)
   - [Design(draft)](architecture/design.md)
 
-# tutorial
-
-- [Intorduce to eBPF](tutorial/0_start.md)
-- [opensnoop](tutorial/1_opensnoop.md)
-
 # Reference
 
 - [cli tools](ecli/index.md)
@@ -37,3 +32,8 @@
   - [Online experience](ecc/online.md)
   - [Usgae](ecc/usage.md)
   - [Config with lua(Optional)](ecc/config.md)
+
+# tutorial
+
+- [Intorduce to eBPF](tutorial/0_start.md)
+- [opensnoop](tutorial/1_opensnoop.md)
