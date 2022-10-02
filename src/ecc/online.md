@@ -12,8 +12,8 @@
 
 在代码编辑器中编写 eBPF 的内核态程序，应当遵循 libbpf-tools 的内核态代码编写约定，即：
 
-- `代码编辑器` (*.bpf.c) 包含 BPF C 代码，它被编译成 package.json
-- `头文件编辑器` (*.bpf.h) 可以选择包含通过 perf event 或环形缓冲区导出到用户空间的类型
+- `代码编辑器` (\*.bpf.c) 包含 BPF C 代码，它被编译成 package.json
+- `头文件编辑器` (\*.bpf.h) 可以选择包含通过 perf event 或环形缓冲区导出到用户空间的类型
 
 我们目前只支持使用基于 libbpf 的内核态代码，BCC 代码支持由于存在一些语法上的差异，还在开发中。
 
@@ -23,7 +23,8 @@
 
 更多信息请参考：[eunomia-bpf.github.io/mannual.html](https://eunomia-bpf.github.io/mannual.html)
 
-更多例子请参考：[https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples)
+更多例子请参考：[https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools)
+
 ### 在线运行
 
 点击右侧的绿色运行按钮运行：
@@ -36,7 +37,7 @@
 $ # 下载安装 ecli 二进制
 $ wget https://aka.pw/bpf-ecli -O ./ecli && chmod +x ./ecli
 $ # 运行 eBPF 程序（root shell）
-$ sudo ./ecli run package.json  
+$ sudo ./ecli run package.json
 ```
 
 ### 使用 Prometheus 在线获取可视化结果

@@ -13,17 +13,17 @@ $ # 使用 url 一键运行
 $ ./ecli run https://eunomia-bpf.github.io/eunomia-bpf/opensnoop/package.json
 
 running and waiting for the ebpf events from perf event...
-time ts pid uid ret flags comm fname 
-00:58:08 0 812 0 9 524288 vmtoolsd /etc/mtab 
-00:58:08 0 812 0 11 0 vmtoolsd /proc/devices 
-00:58:08 0 34351 0 24 524288 ecli /etc/localtime 
-00:58:08 0 812 0 9 0 vmtoolsd /sys/class/block/sda5/../device/../../../class 
-00:58:08 0 812 0 -2 0 vmtoolsd /sys/class/block/sda5/../device/../../../label 
-00:58:08 0 812 0 9 0 vmtoolsd /sys/class/block/sda1/../device/../../../class 
-00:58:08 0 812 0 -2 0 vmtoolsd /sys/class/block/sda1/../device/../../../label 
-00:58:08 0 812 0 9 0 vmtoolsd /run/systemd/resolve/resolv.conf 
-00:58:08 0 812 0 9 0 vmtoolsd /proc/net/route 
-00:58:08 0 812 0 9 0 vmtoolsd /proc/net/ipv6_route 
+time ts pid uid ret flags comm fname
+00:58:08 0 812 0 9 524288 vmtoolsd /etc/mtab
+00:58:08 0 812 0 11 0 vmtoolsd /proc/devices
+00:58:08 0 34351 0 24 524288 ecli /etc/localtime
+00:58:08 0 812 0 9 0 vmtoolsd /sys/class/block/sda5/../device/../../../class
+00:58:08 0 812 0 -2 0 vmtoolsd /sys/class/block/sda5/../device/../../../label
+00:58:08 0 812 0 9 0 vmtoolsd /sys/class/block/sda1/../device/../../../class
+00:58:08 0 812 0 -2 0 vmtoolsd /sys/class/block/sda1/../device/../../../label
+00:58:08 0 812 0 9 0 vmtoolsd /run/systemd/resolve/resolv.conf
+00:58:08 0 812 0 9 0 vmtoolsd /proc/net/route
+00:58:08 0 812 0 9 0 vmtoolsd /proc/net/ipv6_route
 ```
 
 ### 实现
@@ -60,7 +60,7 @@ struct event {
 ```
 
 `opensnoop` 的实现逻辑比较简单，它在 `sys_enter_open` 和 `sys_enter_openat` 这两个追踪点下
-加了执行函数，当有 open 系统调用发生时，执行函数便会被触发。同样在，在对应的 `sys_exit_open` 和 
+加了执行函数，当有 open 系统调用发生时，执行函数便会被触发。同样在，在对应的 `sys_exit_open` 和
 `sys_exit_openat` 系统调用下，`opensnoop` 也加了执行函数。
 
 源文件 opensnoop.bpf.c
@@ -202,10 +202,10 @@ int tracepoint__syscalls__sys_exit_openat(struct trace_event_raw_sys_exit* ctx)
 char LICENSE[] SEC("license") = "GPL";
 ```
 
-在 enter 环节，`opensnoop` 会记录调用者的pid, comm等基本信息，并存入map中。在 exit 环节，`opensnoop`
-会根据pid读出之前存入的数据，再结合捕获的其他数据，输出到用户态处理函数中，展现给用户。
+在 enter 环节，`opensnoop` 会记录调用者的 pid, comm 等基本信息，并存入 map 中。在 exit 环节，`opensnoop`
+会根据 pid 读出之前存入的数据，再结合捕获的其他数据，输出到用户态处理函数中，展现给用户。
 
-完整示例代码请参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop
+完整示例代码请参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop
 
 把头文件和源文件放在独立的目录里面，编译运行：
 
@@ -213,7 +213,7 @@ char LICENSE[] SEC("license") = "GPL";
 $ # 使用容器进行编译，生成一个 package.json 文件，里面是已经编译好的代码和一些辅助信息
 $ docker run -it -v /path/to/opensnoop:/src yunwei37/ebpm:latest
 $ # 运行 eBPF 程序（root shell）
-$ sudo ecli run package.json  
+$ sudo ecli run package.json
 ```
 
 ### Prometheus 可视化
@@ -222,17 +222,17 @@ $ sudo ecli run package.json
 
 ```yaml
 programs:
-- name: opensnoop
-  metrics:
-    counters:
-    - name: eunomia_file_open_counter
-      description: test
-      labels:
-      - name: pid
-      - name: comm
-      - name: filename
-        from: fname
-  compiled_ebpf_filename: package.json
+  - name: opensnoop
+    metrics:
+      counters:
+        - name: eunomia_file_open_counter
+          description: test
+          labels:
+            - name: pid
+            - name: comm
+            - name: filename
+              from: fname
+    compiled_ebpf_filename: package.json
 ```
 
 使用 eunomia-exporter 实现导出信息到 Prometheus：
@@ -258,6 +258,6 @@ Receiving request at path /metrics
 
 参考资料：
 
-- 源代码：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop
+- 源代码：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop
 - libbpf 参考代码：https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c
 - eunomia-bpf 手册：https://eunomia-bpf.github.io/

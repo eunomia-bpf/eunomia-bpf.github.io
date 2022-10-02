@@ -1,4 +1,3 @@
-
 # 项目概览
 
 eunomia-bpf 包含如下几个项目：
@@ -8,7 +7,7 @@ eunomia-bpf 包含如下几个项目：
 - eunomia-exporter：使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集，使用 Rust 编写；
 - ebpm-template：使用 Github Action 进行远程编译，本地一键运行；
 
-### 一个eunomia-bpf库
+### 一个 eunomia-bpf 库
 
 libbpf 主要功能的封装，一些用于用户开发的辅助功能。
 
@@ -31,14 +30,14 @@ $ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ecli
 $ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json # simply run a pre-compiled ebpf code from a url
 ```
 
-可以使用容器进行编译, 仅需要专注于编写[内核态代码](bpftools/examples/bootstrap/bootstrap.bpf.c):
+可以使用容器进行编译, 仅需要专注于编写[内核态代码](examples/bpftools/bootstrap/bootstrap.bpf.c):
 
 ```bash
-$ docker run -it -v ./bpftools/examples/bootstrap:/src yunwei37/ebpm:latest
-$ sudo ./ecli run bpftools/examples/bootstrap/package.json              # run the compiled ebpf code
+$ docker run -it -v ./examples/bpftools/bootstrap:/src yunwei37/ebpm:latest
+$ sudo ./ecli run examples/bpftools/bootstrap/package.json              # run the compiled ebpf code
 ```
 
-更多的例子请参考 [bpftools/examples](bpftools/examples) 文件夹.
+更多的例子请参考 [examples/bpftools](examples/bpftools) 文件夹.
 
 ### 用于生成预编译 eBPF 数据的编译工具链
 
@@ -48,29 +47,29 @@ $ sudo ./ecli run bpftools/examples/bootstrap/package.json              # run th
 
 ### 一个可观测性工具
 
-基于 async Rust 的 Prometheus 或 OpenTelemetry 自定义可观测性数据收集器: [eunomia-exporter]([eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter))
+基于 async Rust 的 Prometheus 或 OpenTelemetry 自定义可观测性数据收集器: [eunomia-exporter](<[eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)>)
 
 可以自行编译或通过 [release](https://github.com/eunomia-bpf/eunomia-bpf/releases/) 下载
 
 #### example
 
-这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [bpftools/examples/opensnoop]([bpftools/examples/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop))
+这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [examples/bpftools/opensnoop](<[examples/bpftools/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop)>)
 
 在编译之后，可以定义一个这样的配置文件:
 
 ```yml
 programs:
-- name: opensnoop
-  metrics:
-    counters:
-    - name: eunomia_file_open_counter
-      description: test
-      labels:
-      - name: pid
-      - name: comm
-      - name: filename
-        from: fname
-  compiled_ebpf_filename: bpftools/examples/opensnoop/package.json
+  - name: opensnoop
+    metrics:
+      counters:
+        - name: eunomia_file_open_counter
+          description: test
+          labels:
+            - name: pid
+            - name: comm
+            - name: filename
+              from: fname
+    compiled_ebpf_filename: examples/bpftools/opensnoop/package.json
 ```
 
 然后，您可以在任何地方使用 `config.yaml` 和预编译的 eBPF 数据 `package.json` 启动 Prometheus 导出器，您可以看到如下指标：

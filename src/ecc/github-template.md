@@ -49,7 +49,6 @@ see: [github.com/eunomia-bpf/eunomia-bpf](https://github.com/eunomia-bpf/eunomia
 
 This is an example of ebpf code, we copied the bootstrap.bpf.c from [libbpf-bootstrap](https://github.com/libbpf/libbpf-bootstrap/tree/master/examples/c), without any modification. You can read their `README` for details: https://github.com/libbpf/libbpf-bootstrap
 
-
 ## more examples
 
-for more examples, please see: [eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples)
+for more examples, please see: [eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools)

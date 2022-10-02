@@ -1,36 +1,36 @@
-
 ## example
 
-This is an adapted version of opensnoop from [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), you can check our source code here: [bpftools/examples/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop)
+This is an adapted version of opensnoop from [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), you can check our source code here: [examples/bpftools/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop)
 
 You can just download the pre-compiled [opensnoop package.json](https://eunomia-bpf.github.io/eunomia-bpf/opensnoop/package.json).
 
-Or you can compile the [opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop) like this:
+Or you can compile the [opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop) like this:
 
 ```sh
-$ cd bpftools/examples/opensnoop
-$ docker run -it -v /userpath/eunomia-bpf/bpftools/examples/opensnoop:/src yunwei37/ebpm:latest
+$ cd examples/bpftools/opensnoop
+$ docker run -it -v /userpath/eunomia-bpf/examples/bpftools/opensnoop:/src yunwei37/ebpm:latest
 ```
+
 `userpath` needs to be replaced with your own repo path.
 
 After compile the eBPF code, you can define a config file like this:
 
 ```yml
 programs:
-- name: opensnoop
-  metrics:
-    counters:
-    - name: eunomia_file_open_counter
-      description: test
-      labels:
-      - name: pid
-      - name: comm
-      - name: filename
-        from: fname
-  compiled_ebpf_filename: package.json
+  - name: opensnoop
+    metrics:
+      counters:
+        - name: eunomia_file_open_counter
+          description: test
+          labels:
+            - name: pid
+            - name: comm
+            - name: filename
+              from: fname
+    compiled_ebpf_filename: package.json
 ```
 
-use the path to `package.json` as compiled_ebpf_filename in the config file. You can find the example at [config.yaml](https://github.com/eunomia-bpf/eunomia-bpf/blob/master/bpftools/examples/opensnoop/config.yaml).
+use the path to `package.json` as compiled_ebpf_filename in the config file. You can find the example at [config.yaml](https://github.com/eunomia-bpf/eunomia-bpf/blob/master/examples/bpftools/opensnoop/config.yaml).
 
 Then, you can start the exporter:
 

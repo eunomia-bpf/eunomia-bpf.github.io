@@ -10,7 +10,7 @@
 - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
 - [通过 API 进行热插拔和分发：](#通过-api-进行热插拔和分发)
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
-    - [example](#example)
+  - [example](#example)
 - [使用说明](#使用说明)
 - [原理](#原理)
 - [为我们的项目贡献代码](#为我们的项目贡献代码)
@@ -93,8 +93,9 @@ $ wget https://aka.pw/bpf-ecli -O /usr/local/ecli && chmod +x /usr/local/ecli
 $ # 使用容器进行编译，生成一个 package.json 文件，里面是已经编译好的代码和一些辅助信息
 $ docker run -it -v /path/to/repo:/src yunwei37/ebpm:latest
 $ # 运行 eBPF 程序（root shell）
-$ sudo ecli run package.json  
+$ sudo ecli run package.json
 ```
+
 > 使用 docker 的时候需要把包含 .bpf.c 文件的目录挂载到容器的 /src 目录下，目录中只有一个 .bpf.c 文件；
 
 它会追踪所有进行 write 系统调用的进程的 pid：
@@ -109,7 +110,7 @@ cat-42755   [003] d...1 48755.529860: bpf_trace_printk: BPF triggered from PID 4
 
 ## 添加 map 记录数据
 
-参考：<https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/bootstrap>
+参考：<https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/bootstrap>
 
 ```c
 
@@ -126,7 +127,7 @@ struct {
 
 ## 使用 ring buffer 往用户态发送数据
 
-参考：<https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/bootstrap>
+参考：<https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/bootstrap>
 
 只需要定义一个头文件，包含你想要发送给用户态的数据格式，以 `.bpf.h` 作为后缀名：
 
@@ -188,7 +189,7 @@ struct {
 } events SEC(".maps");
 ```
 
-可以参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop 它是直接从 libbpf-tools 中移植的实现；
+可以参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop 它是直接从 libbpf-tools 中移植的实现；
 
 ## 使用 github-template 实现远程编译
 
@@ -204,7 +205,7 @@ $ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 
 ## 通过 API 进行热插拔和分发：
 
-由于 eunomia-cc 编译出来的 ebpf 程序代码和附加信息很小（约数十kb），且不需要同时传递任何的额外依赖，因此我们可以非常方便地通过网络 API 直接进行分发，也可以在很短的时间（大约100ms）内实现热插拔和热更新。我们提供了一个简单的 client 和 server，请参考;
+由于 eunomia-cc 编译出来的 ebpf 程序代码和附加信息很小（约数十 kb），且不需要同时传递任何的额外依赖，因此我们可以非常方便地通过网络 API 直接进行分发，也可以在很短的时间（大约 100ms）内实现热插拔和热更新。我们提供了一个简单的 client 和 server，请参考;
 
 [https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md](https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/ecli-usage.md)
 
@@ -220,23 +221,23 @@ $ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 
 #### example
 
-这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [bpftools/examples/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples/opensnoop)
+这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [examples/bpftools/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop)
 
 在编译之后，可以定义一个这样的配置文件:
 
 ```yml
 programs:
-- name: opensnoop
-  metrics:
-    counters:
-    - name: eunomia_file_open_counter
-      description: test
-      labels:
-      - name: pid
-      - name: comm
-      - name: filename
-        from: fname
-  compiled_ebpf_filename: bpftools/examples/opensnoop/package.json
+  - name: opensnoop
+    metrics:
+      counters:
+        - name: eunomia_file_open_counter
+          description: test
+          labels:
+            - name: pid
+            - name: comm
+            - name: filename
+              from: fname
+    compiled_ebpf_filename: examples/bpftools/opensnoop/package.json
 ```
 
 然后，您可以在任何地方使用 `config.yaml` 和预编译的 eBPF 数据 `package.json` 启动 Prometheus 导出器，您可以看到如下指标：
@@ -244,7 +245,6 @@ programs:
 ![prometheus](https://oss.openanolis.cn/sig/stxfomyiiwdwkdrqwlnn)
 
 您可以在任何内核版本上部署导出器，而无需依赖 `LLVM/Clang`。 有关详细信息，请参阅 [eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)。
-
 
 ## 使用说明
 
@@ -282,7 +282,7 @@ graph TD
   a1-->a2
   end
 
-  subgraph eBPF编译工具链 
+  subgraph eBPF编译工具链
   b1(使用 Clang 编译 eBPF 程序获得包含重定位信息的 bpf.o)
   b2(添加从 eBPF 源代码的 AST 和导出的内存布局, 类型信息等)
   b3(打包生成 JSON 数据)
@@ -309,7 +309,7 @@ eunomia-bpf 也已经加入了龙蜥社区：
 
 您可以帮助我们添加测试或者示例，可以参考：
 
-- [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/examples)
+- [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools)
 - [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/bpftools/tests)
 
 由于现在 API 还不稳定，如果您在试用中遇到任何问题或者任何流程/文档不完善的地方，请在 gitee 或 github issue 留言，
