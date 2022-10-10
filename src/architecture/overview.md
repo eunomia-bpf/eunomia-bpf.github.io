@@ -7,7 +7,7 @@ eunomia-bpf 包含如下几个项目：
 - eunomia-exporter：使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集，使用 Rust 编写；
 - ebpm-template：使用 Github Action 进行远程编译，本地一键运行；
 
-### 一个 eunomia-bpf 库
+## 一个 eunomia-bpf 库
 
 libbpf 主要功能的封装，一些用于用户开发的辅助功能。
 
@@ -15,26 +15,26 @@ libbpf 主要功能的封装，一些用于用户开发的辅助功能。
 - 使用一些额外的数据来帮助加载和配置 eBPF 字节码。
 - 多语言绑定：参见 [eunomia-sdks](eunomia-sdks)。 我们现在有 Rust 的 API，将来会添加更多；
 
-#### 安装运行
+### 安装运行
 
 大多数时候安装时只需要下载对应的二进制即可：
 
 ```bash
-$ # download the release from https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecli
-$ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ecli
+# download the release from https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecli
+wget https://aka.pw/bpf-ecli -O ecli && chmod +x ecli
 ```
 
 有关详细信息，请参见 [eunomia-bpf](eunomia-bpf) 文件夹。 借助该库，我们提供了[一个简单的 cli](https://github.com/eunomia-bpf/eunomia-bpf/releases/)，在支持 eBPF 的内核版本上，您可以简单地使用 url 或路径运行预编译 eBPF 数据：
 
 ```bash
-$ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json # simply run a pre-compiled ebpf code from a url
+sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json # simply run a pre-compiled ebpf code from a url
 ```
 
 可以使用容器进行编译, 仅需要专注于编写[内核态代码](examples/bpftools/bootstrap/bootstrap.bpf.c):
 
 ```bash
-$ docker run -it -v ./examples/bpftools/bootstrap:/src yunwei37/ebpm:latest
-$ sudo ./ecli run examples/bpftools/bootstrap/package.json              # run the compiled ebpf code
+docker run -it -v ./examples/bpftools/bootstrap:/src yunwei37/ebpm:latest
+sudo ./ecli run examples/bpftools/bootstrap/package.json              # run the compiled ebpf code
 ```
 
 更多的例子请参考 [examples/bpftools](examples/bpftools) 文件夹.

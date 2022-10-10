@@ -1,6 +1,6 @@
 # 系统设计草稿（2022.08）
 
-### 核心，一个运行时库：eunomia-bpf
+## 核心: 一个运行时库 eunomia-bpf
 
 有三个核心部分：
 
@@ -43,7 +43,7 @@ API 设计：
 - 原子：
 - 正交：
 
-### 基于运行时库的一个 cli：
+## 基于运行时库的一个 cli
 
 一个 ebpf 程序包含两个部分：
 
@@ -66,17 +66,17 @@ API 设计：
 
 - 本地帮助生成编译框架；
 
-    ```bash
-    ./ecli init opensnoop
-    ```
+  ```bash
+  ./ecli init opensnoop
+  ```
 
-    需要的文件：
+  需要的文件：
 
-    - - makefile
-    - - .gitignore
-    - - xxx.bpf.c
-    - - xxx.bpf.h
-    - - config.json/toml
+  - makefile
+  - .gitignore
+  - xxx.bpf.c
+  - xxx.bpf.h
+  - config.json/toml
 
     生成一个最简单的 libbpf-bootstrap 编译框架，不带包管理器，没有配置文件，没有依赖；需要一个镜像；
 
@@ -91,6 +91,7 @@ API 设计：
 - 我们需要一种语言来帮助实现可定制化的用户态程序处理，比如 lua 虚拟机来实现热加载；但是这个部分可以分开；用户态的部分应该作为类似标准库一样的东西；
 
 改一改 eunomia 就好；
+
 - 和 etcd 集成；
 - 通过 UDP 在组播地址上监听实现发现；
 
@@ -168,6 +169,7 @@ git push ...
 或者在 config 里面定义之后：
 
 ebpm.toml/json
+
 ```c
 [[module]]
 name = "opensnoop"、
@@ -233,11 +235,11 @@ import "ebpm-opensnoop"
 
 ## 参考资料
 
-- https://wiki.lfnetworking.org/display/L3AF/L3AF%3A+Technical+Charter%2C+Milestones+and+Deliverables
+- <https://wiki.lfnetworking.org/display/L3AF/L3AF%3A+Technical+Charter%2C+Milestones+and+Deliverables>
 
 仔细看了看，我发现我们原先做的 eunomia 和这个有点类似，但是热更新原理和这个无关
 
-- https://github.com/solo-io/bumblebee
+- <https://github.com/solo-io/bumblebee>
 - ebpf as a service
 - rewrite some part of it in rust/go
 
@@ -245,7 +247,7 @@ import "ebpm-opensnoop"
 
 - ebpf as a service
 
-  以非常低的代价实现 ebpf 程序级别的 CO-RE 分发、远程加载、运行；类似 https://aws.amazon.com/cn/lambda/
+  以非常低的代价实现 ebpf 程序级别的 CO-RE 分发、远程加载、运行；类似 <https://aws.amazon.com/cn/lambda/>
 
 ## 其他
 
@@ -253,7 +255,7 @@ import "ebpm-opensnoop"
 
 在都做好之后，安全性也需要考虑清楚：要有确定性的编译结果，不能依赖于随机数或者时间之类的情况；
 
-### 一个在网页版里面运行的 ebpf wasm 虚拟机；
+### 一个在网页版里面运行的 ebpf wasm 虚拟机
 
 ## 安装设计
 
