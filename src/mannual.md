@@ -8,7 +8,7 @@
 - [使用 ring buffer 往用户态发送数据](#使用-ring-buffer-往用户态发送数据)
 - [使用 perf event array 往用户态发送数据](#使用-perf-event-array-往用户态发送数据)
 - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
-- [通过 API 进行热插拔和分发：](#通过-api-进行热插拔和分发)
+- [通过 API 进行热插拔和分发](#通过-api-进行热插拔和分发)
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
   - [example](#example)
 - [使用说明](#使用说明)
@@ -88,12 +88,12 @@ int handle_tp(void *ctx)
 假设它叫 `hello.bpf.c`，新建一个 `/path/to/repo` 的文件夹并且把它放进去，接下来的步骤：
 
 ```console
-$ # 下载安装 ecli 二进制
-$ wget https://aka.pw/bpf-ecli -O /usr/local/ecli && chmod +x /usr/local/ecli
-$ # 使用容器进行编译，生成一个 package.json 文件，里面是已经编译好的代码和一些辅助信息
-$ docker run -it -v /path/to/repo:/src yunwei37/ebpm:latest
-$ # 运行 eBPF 程序（root shell）
-$ sudo ecli run package.json
+# 下载安装 ecli 二进制
+wget https://aka.pw/bpf-ecli -O /usr/local/ecli && chmod +x /usr/local/ecli
+# 使用容器进行编译，生成一个 package.json 文件，里面是已经编译好的代码和一些辅助信息
+docker run -it -v /path/to/repo:/src yunwei37/ebpm:latest
+# 运行 eBPF 程序（root shell）
+sudo ecli run package.json
 ```
 
 > 使用 docker 的时候需要把包含 .bpf.c 文件的目录挂载到容器的 /src 目录下，目录中只有一个 .bpf.c 文件；
@@ -183,13 +183,13 @@ eunomia-bpf 会自动去源代码中找到对应的 ring buffer map，并且把 
 
 ```c
 struct {
-	__uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
-	__uint(key_size, sizeof(u32));
-	__uint(value_size, sizeof(u32));
+ __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+ __uint(key_size, sizeof(u32));
+ __uint(value_size, sizeof(u32));
 } events SEC(".maps");
 ```
 
-可以参考：https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop 它是直接从 libbpf-tools 中移植的实现；
+可以参考：<https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop> 它是直接从 libbpf-tools 中移植的实现；
 
 ## 使用 github-template 实现远程编译
 
@@ -200,10 +200,10 @@ struct {
 3. 我们配置了 github pages 来完成编译好的 json 的导出，之后就可以实现 ecli 使用远程 url 一行命令即可运行：
 
 ```console
-$ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
+sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 ```
 
-## 通过 API 进行热插拔和分发：
+## 通过 API 进行热插拔和分发
 
 由于 eunomia-cc 编译出来的 ebpf 程序代码和附加信息很小（约数十 kb），且不需要同时传递任何的额外依赖，因此我们可以非常方便地通过网络 API 直接进行分发，也可以在很短的时间（大约 100ms）内实现热插拔和热更新。我们提供了一个简单的 client 和 server，请参考;
 
@@ -272,24 +272,28 @@ programs:
 
 ```mermaid
 graph TD
- b3-->package
+  b3-->package
+  b4-->a3
   package-->a1
   package(可通过网络或其他任意方式进行分发: CO-RE)
 
   subgraph 运行时加载器库
-  a1(根据配置信息和 eBPF 源代码里的类型信息, 结合 WASM 动态装载 eBPF 程序)
-  a2(根据类型信息和内存布局信息, 结合 WASM 对用户态导出事件进行动态处理)
+  a3(运行 WASM 模块配置 eBPF 程序或和 eBPF 程序交互)
+  a1(根据 JSON 配置信息动态装载 eBPF 程序)
+  a2(根据类型信息和内存布局信息对内核态导出事件进行动态处理)
   a1-->a2
+  a3-->a1
+  a2-->a3
   end
 
   subgraph eBPF编译工具链
   b1(使用 Clang 编译 eBPF 程序获得包含重定位信息的 bpf.o)
-  b2(添加从 eBPF 源代码的 AST 和导出的内存布局, 类型信息等)
+  b2(添加从 eBPF 源代码获取的内核态导出数据的内存布局, 类型信息等)
   b3(打包生成 JSON 数据)
-  b4(从注解或配置文件添加其他用户态配置, 处理信息)
+  b4(打包成 WASM 模块进行分发)
   b5(可选的用户态数据处理程序编译为 WASM)
   b2-->b3
-  b4-->b3
+  b3-->b5
   b5-->b4
   b1-->b2
   end
