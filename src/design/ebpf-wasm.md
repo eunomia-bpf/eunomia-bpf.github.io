@@ -1,3 +1,5 @@
+#!<https://zhuanlan.zhihu.com/p/573941739>
+
 # 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序
 
 当今云原生世界中两个最热门的轻量级代码执行沙箱/虚拟机是 eBPF 和 WebAssembly。它们都运行从 C、C++ 和 Rust 等语言编译的高性能字节码程序，并且都是跨平台、可移植的。二者最大的区别在于： eBPF 在 Linux 内核中运行，而 WebAssembly 在用户空间中运行。我们希望能做一些将二者相互融合的尝试：使用 WASM 来编写通用的 eBPF 程序，然后可以将其分发到任意不同版本、不同架构的 Linux 内核中，无需重新编译即可运行。
@@ -14,7 +16,7 @@ WASM 的编译和部署流程如下：
 
 通常可以将 C/C+/RUST 等高级语言编译为 WASM 字节码，在 WASM 虚拟机中进行加载运行。WASM 虚拟机会通过解释执行或 JIT 的方式，将 WASM 字节码翻译为对应平台（ x86/arm 等）的机器码运行。
 
-eBPF 源于 BPF，本质上是处于内核中的一个高效与灵活的虚拟机组件，以一种安全的方式在许多内核 hook 点执行字节码。BPF 最初的目的是用于高效网络报文过滤，经过重新设计，eBPF 不再局限于网络协议栈，已经成为内核顶级的子系统，演进为一个通用执行引擎。开发者可基于 eBPF 开发性能分析工具、软件定义网络、安全等诸多场景。eBPF 有一些编程限制，需要经过验证器确保其在内核应用场景中是安全的（例如，没有无限循环、内存越界等），但这也意味着 eBPF 的编程模型不是图灵完备的。相比之下，WebAssembly 是一种图灵完备的语言，具有能够打破沙盒和访问原生 OS 库的扩展 WASI (WebAssembly System Interface, WASM系统接口) ，同时 WASM 运行时可以安全地隔离并以接近原生的性能执行用户空间代码。二者的领域主体上有不少差异，但也有不少相互重叠的地方。
+eBPF 源于 BPF，本质上是处于内核中的一个高效与灵活的虚拟机组件，以一种安全的方式在许多内核 hook 点执行字节码。BPF 最初的目的是用于高效网络报文过滤，经过重新设计，eBPF 不再局限于网络协议栈，已经成为内核顶级的子系统，演进为一个通用执行引擎。开发者可基于 eBPF 开发性能分析工具、软件定义网络、安全等诸多场景。eBPF 有一些编程限制，需要经过验证器确保其在内核应用场景中是安全的（例如，没有无限循环、内存越界等），但这也意味着 eBPF 的编程模型不是图灵完备的。相比之下，WebAssembly 是一种图灵完备的语言，具有能够打破沙盒和访问原生 OS 库的扩展 WASI (WebAssembly System Interface, WASM 系统接口) ，同时 WASM 运行时可以安全地隔离并以接近原生的性能执行用户空间代码。二者的领域主体上有不少差异，但也有不少相互重叠的地方。
 
 有一些在 Linux 内核中运行 WebAssembly 的尝试，然而基本上不太成功。 eBPF 是这个应用场景下更好的选择。但是 WebAssembly 程序可以处理许多类内核的任务，可以被 AOT 编译成原生应用程序。来自 CNCF 的 WasmEdge Runtime 是一个很好的基于 LLVM 的云原生 WebAssembly 编译器。原生应用程序将所有沙箱检查合并到原生库中，这允许 WebAssembly 程序表现得像一个独立的 unikernel “库操作系统”。此外，这种 AOT 编译的沙盒 WebAssembly 应用程序可以在微内核操作系统（如 seL4）上运行，并且可以接管许多“内核级”任务[1]。
 
@@ -38,7 +40,7 @@ eBPF 源于 BPF，本质上是处于内核中的一个高效与灵活的虚拟�
 - `敏捷性`：对于大型的 eBPF 应用程序，可以使用 WASM 作为插件扩展平台：扩展程序可以在运行时直接从控制平面交付和重新加载。这不仅意味着每个人都可以使用官方和未经修改的应用程序来加载自定义扩展，而且任何 eBPF 程序的错误修复和/或更新都可以在运行时推送和/或测试，而不需要更新和/或重新部署一个新的二进制；
 - `轻量级`：WebAssembly 微服务消耗 1% 的资源，与 Linux 容器应用相比，冷启动的时间是 1%：我们也许可以借此实现 eBPF as a service，让 eBPF 程序的加载和执行变得更加轻量级、快速、简便易行；
 
-eunomia-bpf 是 `eBPF 技术探索 SIG` [3] [5] 中发起并孵化的项目，目前也已经在 [github](https://github.com/eunomia-bpf/eunomia-bpf) [4] 上开源。eunomia-bpf 是一个 eBPF 程序的轻量级开发加载框架，包含了一个用户态动态加载框架/运行时库，以及一个简单的编译 WASM 和 eBPF 字节码的工具链容器。事实上，在 WASM 模块中编写 eBPF 代码和通常熟悉的使用 libbpf 框架或 coolbpf 开发 eBPF 程序的方式是基本一样的，WASM 的复杂性会被隐藏在 eunomia-bpf 的编译工具链和运行时库中，开发者可以专注于 eBPF 程序的开发和调试，不需要了解 WASM 的背景知识，也不需要担心 WASM 的编译环境配置。
+eunomia-bpf 是 `eBPF 技术探索 SIG` [3] [5] 中发起并孵化的项目，目前也已经在 [github](https://github.com/eunomia-bpf/eunomia-bpf) [4] 上开源。eunomia-bpf 是一个 eBPF 程序的轻量级开发加载框架，包含了一个用户态动态加载框架/运行时库，以及一个简单的编译 WASM 和 eBPF 字节码的工具链容器。事实上，在 WASM 模块中编写 eBPF 代码和通常熟悉的使用 libbpf 框架或 Coolbpf 开发 eBPF 程序的方式是基本一样的，WASM 的复杂性会被隐藏在 eunomia-bpf 的编译工具链和运行时库中，开发者可以专注于 eBPF 程序的开发和调试，不需要了解 WASM 的背景知识，也不需要担心 WASM 的编译环境配置。
 
 ### 使用 WASM 模块分发、动态加载 eBPF 程序
 
@@ -271,7 +273,7 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 
 ![arch](../img/eunomia-arch.png)
 
-`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块 `eunomia-bpf`。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
+`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
 
 使用 WASM 或 JSON 编译分发 eBPF 程序的流程图大致如下：
 
@@ -280,9 +282,9 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 大致来说，整个 eBPF 程序的编写和加载分为三个部分：
 
 1. 用 eunomia-cc 工具链将内核的 eBPF 代码骨架和字节码编译为 JSON 格式
-2. 在 WASM 模块中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
-3. 将 WASM 模块和 JSON 数据一起编译，然后通过 ecli 工具加载并运行
-4. 从 WASM 模块加载内嵌的 JSON 数据，用 eunomia-bpf 库运行 eBPF 程序骨架。
+2. 在用户态开发的高级语言（例如 C 语言）中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
+3. 将用户态程序和 JSON 数据一起编译为 WASM 字节码并打包为 WASM 模块，然后在目标机器上加载并运行 WASM 程序
+4. 从 WASM 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
 
 我们需要完成的仅仅是少量的 native API 和 WASM 运行时的绑定，并且在 WASM 代码中处理 JSON 数据。你可以在一个单一的 `WASM` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 WASM 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
 
@@ -292,7 +294,7 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 
 目前 eunomia-bpf 的工具链的实现还远远谈不上完善，只是有一个可行性验证的版本。对于一个开发工具链来说，具体的 API 标准和相关的生态是非常重要的，我们希望如果有机会的话，也许可以和 SIG 社区的其他成员一起讨论并形成一个具体的 API 标准，能够基于 eBPF 和 WASM 等技术，共同提供一个通用的、跨平台和内核版本的插件生态，为各自的应用增加 eBPF 和 WASM 的超能力。
 
-目前 eunomia-bpf 跨内核版本的动态加载特性还依赖于内核的 BTF 信息，SIG 社区的 coolbpf 项目[9]本身能提供 BTF 的自动生成、低版本内核的适配功能，未来低版本内核的支持会基于 coolbpf 的现有的部分完成。同时，我们也会给 coolbpf 的 API 实现、远程编译后端提供类似于 eunomia-bpf 的内核态编译和运行完全分离的功能，让使用 coolbpf API 开发 eBPF 的程序，在远程编译一次过后可以在任意内核版本和架构上直接使用，在部署时无需再次连接远程服务器；也可以将编译完成的 eBPF 程序作为 Go、Python、Rust 等语言的开发包直接使用，让开发者能轻松获得 eBPF 程序上报的信息，而完全不需要再次进行任何 eBPF 程序的编译过程。
+目前 eunomia-bpf 跨内核版本的动态加载特性还依赖于内核的 BTF 信息，SIG 社区的 Coolbpf 项目[9]本身能提供 BTF 的自动生成、低版本内核的适配功能，未来低版本内核的支持会基于 Coolbpf 的现有的部分完成。同时，我们也会给 Coolbpf 的 API 实现、远程编译后端提供类似于 eunomia-bpf 的内核态编译和运行完全分离的功能，让使用 Coolbpf API 开发 eBPF 的程序，在远程编译一次过后可以在任意内核版本和架构上直接使用，在部署时无需再次连接远程服务器；也可以将编译完成的 eBPF 程序作为 Go、Python、Rust 等语言的开发包直接使用，让开发者能轻松获得 eBPF 程序上报的信息，而完全不需要再次进行任何 eBPF 程序的编译过程。
 
 SIG 社区孵化于高校的 Linux Microscope (LMP) 项目[10]中，也已经有一些基于 eunomia-bpf 提供通用的、规范化、可以随时下载运行的 eBPF 程序或工具库的计划，目前还在继续完善的阶段。
 
@@ -306,5 +308,5 @@ SIG 社区孵化于高校的 Linux Microscope (LMP) 项目[10]中，也已经有
 6. sigsnoop 示例代码：<https://gitee.com/anolis/eunomia/tree/master/examples/bpftools/sigsnoop>
 7. eunomia-bpf 用户手册：<https://openanolis.cn/sig/ebpfresearch/doc/646023027267993641>
 8. 更多示例代码：<https://gitee.com/anolis/eunomia/tree/master/examples/bpftools/sigsnoop>
-9. coolbpf 项目介绍：<https://openanolis.cn/sig/ebpfresearch/doc/633529753894377555>
+9. Coolbpf 项目介绍：<https://openanolis.cn/sig/ebpfresearch/doc/633529753894377555>
 10. LMP 项目介绍：<https://openanolis.cn/sig/ebpfresearch/doc/633661297090877527>
