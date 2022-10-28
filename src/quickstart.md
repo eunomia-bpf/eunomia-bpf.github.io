@@ -40,12 +40,12 @@ int handle_tp(void *ctx)
 Assuming the parent directory of the hello folder is `/path/to/repo`, the next steps:
 
 ```console
-$ # 下载安装 ecli 二进制
+$ # download ecli binary
 $ wget https://aka.pw/bpf-ecli -O ./ecli && chmod +x ./ecli
-$ # 使用容器进行编译，生成一个 package.json 文件，里面是已经编译好的代码和一些辅助信息
+$ # use docker to compile the ebpf code to a file `package.json`
 $ docker run -it -v /path/to/repo/hello:/src yunwei37/ebpm:latest
-$ # 运行 eBPF 程序（root shell）
-$ sudo ./ecli run package.json  
+$ # run eBPF program
+$ sudo ./ecli run package.json
 ```
 
 > When using docker, you need to mount the directory containing the .bpf.c file to the /src directory of the container, and there is only one .bpf.c file in the directory;

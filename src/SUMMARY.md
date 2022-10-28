@@ -16,7 +16,6 @@
 - [Architecture](architecture/index.md)
   - [Overview](architecture/overview.md)
   - [How it works](architecture/reason.md)
-  - [Design(draft)](architecture/design.md)
 
 # Reference
 
@@ -31,7 +30,11 @@
   - [Github template](ecc/github-template.md)
   - [Online experience](ecc/online.md)
   - [Usgae](ecc/usage.md)
-  - [Config with lua(Optional)](ecc/config.md)
+
+# blog
+
+- [当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序](blog/ebpf-wasm.md)
+- [如何在 Linux 显微镜（LMP）项目中开启 eBPF 之旅](blog/lmp-eunomia.md)
 
 # tutorial
 

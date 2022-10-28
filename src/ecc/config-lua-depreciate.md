@@ -1,6 +1,6 @@
 # lua condig
 
-类似于 xmake 和 https://github.com/iovisor/bcc/tree/master/examples/lua 的设计，我们打算使用 lua 来帮助进行用户态一些可选信息的配置，例如：
+类似于 xmake 和 <https://github.com/iovisor/bcc/tree/master/examples/lua> 的设计，我们打算使用 lua 来帮助进行用户态一些可选信息的配置，例如：
 
 - 将多个 eBPF 程序打包成一个 package；
 - 修改内核态上报的信息；
@@ -22,7 +22,7 @@ target("ebpf_program1")
     end)
     add_files("src/uprobe.bpf.c")
 
-entry(function (arg)   -- replace the default entry with 
+entry(function (arg)   -- replace the default entry with
     if arg == "uprobe" then
         run("ebpf_program1")
         sleep(1000)

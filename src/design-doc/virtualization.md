@@ -44,7 +44,7 @@ LMP 项目目标：
 
 ![bcc](../img/bcc_tracing_tools_2019.png)
 
-或者 
+或者
 
 ![kd](../img/kernel_diagram.png)
 
@@ -99,7 +99,7 @@ LMP 项目目标：
 
 README 驱动开发
 
-- https://tom.preston-werner.com/2010/08/23/readme-driven-development.html
+- <https://tom.preston-werner.com/2010/08/23/readme-driven-development.html>
 
 BCC 的组织方式和 README
 

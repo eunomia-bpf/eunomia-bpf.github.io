@@ -11,7 +11,9 @@
 - [通过 API 进行热插拔和分发](#通过-api-进行热插拔和分发)
 - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
   - [example](#example)
-- [使用说明](#使用说明)
+- [使用 WASM 模块分发、动态加载 eBPF 程序](#使用-wasm-模块分发动态加载-ebpf-程序)
+- [使用 WASM 开发和打包 eBPF 程序](#使用-wasm-开发和打包-ebpf-程序)
+- [演示视频](#演示视频)
 - [原理](#原理)
 - [为我们的项目贡献代码](#为我们的项目贡献代码)
 
@@ -219,7 +221,7 @@ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 
 可以自行编译或通过 [release](https://github.com/eunomia-bpf/eunomia-bpf/releases/) 下载
 
-#### example
+### example
 
 这是一个 `opensnoop` 程序，追踪所有的打开文件，源代码来自 [bcc/libbpf-tools](https://github.com/iovisor/bcc/blob/master/libbpf-tools/opensnoop.bpf.c), 我们修改过后的源代码在这里: [examples/bpftools/opensnoop](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/examples/bpftools/opensnoop)
 
@@ -246,29 +248,261 @@ programs:
 
 您可以在任何内核版本上部署导出器，而无需依赖 `LLVM/Clang`。 有关详细信息，请参阅 [eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)。
 
-## 使用说明
+## 使用 WASM 模块分发、动态加载 eBPF 程序
 
-1. 我们使用与 libbpf 相同的 c eBPF 代码，因此大多数 libbpf eBPF c 代码无需任何修改即可运行。
-2. 支持的 eBPF 程序类型：`kprobe`, `tracepoint`, `fentry`, `lsm` 未来我们会增加更多；
-3. 如果你想使用环形缓冲区来导出事件，你需要添加 `your_program.bpf.h` 到你的 repo，并在其中定义导出数据类型，导出数据类型应该是 C struct，例如：
+eunomia-bpf 库包含一个简单的命令行工具（ecli），包含了一个小型的 WASM 运行时模块和 eBPF 动态装载的功能，可以直接下载下来后进行使用：
 
-   ```c
-   struct process_event {
-       int pid;
-       int ppid;
-       unsigned exit_code;
-       unsigned long long duration_ns;
-       char comm[TASK_COMM_LEN];
-       char filename[MAX_FILENAME_LEN];
-       int exit_event;
-   };
-   ```
+```console
+# download the release from https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecli
+$ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ./ecli
+$ sudo ./ecli run https://eunomia-bpf.github.io/eunomia-bpf/sigsnoop/app.wasm
+2022-10-11 14:05:50 URL:https://eunomia-bpf.github.io/eunomia-bpf/sigsnoop/app.wasm [70076/70076] -> "/tmp/ebpm/app.wasm" [1]
+running and waiting for the ebpf events from perf event...
+{"pid":1709490,"tpid":1709077,"sig":0,"ret":0,"comm":"node","sig_name":"N/A"}
+{"pid":1712603,"tpid":1717412,"sig":2,"ret":0,"comm":"kworker/u4:3","sig_name":"SIGINT"}
+{"pid":1712603,"tpid":1717411,"sig":2,"ret":0,"comm":"kworker/u4:3","sig_name":"SIGINT"}
+{"pid":0,"tpid":847,"sig":14,"ret":0,"comm":"swapper/1","sig_name":"SIGALRM"}
+{"pid":1709490,"tpid":1709077,"sig":0,"ret":0,"comm":"node","sig_name":"N/A"}
+{"pid":1709139,"tpid":1709077,"sig":0,"ret":0,"comm":"node","sig_name":"N/A"}
+{"pid":1717420,"tpid":1717419,"sig":17,"ret":0,"comm":"cat","sig_name":"SIGCHLD"}
+```
 
-   导出的名称和字段类型不受限制，但最好使用标准 C 类型。如果标头中存在多个 struct，我们现阶段将使用第一个作为导出的数据类型。仅当我们发现 eBPF 程序中存在 `BPF_MAP_TYPE_RINGBUF` 的 map 时，才启用环形缓冲区导出的功能。
+ecli 会自动从网页上下载并加载 sigsnoop/app.wasm 这个 wasm 模块，它包含了一个 eBPF 程序，用于跟踪内核中进程的信号发送和接收。这里我们可以看到一个简单的 JSON 格式的输出，包含了进程的 PID、信号的类型、发送者和接收者，以及信号名称等信息。它也可以附带一些命令行参数，例如：
 
-4. 目前部分低版本内核对于 eBPF 模块的支持并不完善，同时也可能没有附带 BTF 信息，因此有可能一些 eBPF 程序在低版本内核上运行时不能得到预期的结果。详情请参考 libbpf 对应的文档：[libbpf/libbpf](https://github.com/libbpf/libbpf) 我们未来会在这方面继续提升兼容性。
+```console
+$ wget https://eunomia-bpf.github.io/eunomia-bpf/sigsnoop/app.wasm
+2022-10-11 14:08:07 (40.5 MB/s) - ‘app.wasm.1’ saved [70076/70076]
+
+$ sudo ./ecli run app.wasm -h
+Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
+Trace standard and real-time signals.
+
+
+    -h, --help  show this help message and exit
+    -x, --failed  failed signals only
+    -k, --killed  kill only
+    -p, --pid=<int>  target pid
+    -s, --signal=<int>  target signal
+
+$ sudo ./ecli run app.wasm -p 1641
+running and waiting for the ebpf events from perf event...
+{"pid":1641,"tpid":14900,"sig":23,"ret":0,"comm":"YDLive","sig_name":"SIGURG"}
+{"pid":1641,"tpid":14900,"sig":23,"ret":0,"comm":"YDLive","sig_name":"SIGURG"}
+```
+
+我们可以通过 -p 控制它追踪哪个进程，在内核态 eBPF 程序中进行一些过滤和处理。同样也可以使用 ecli 来动态加载使用其他的工具，例如 opensnoop：
+
+```console
+$ sudo ./ecli run https://eunomia-bpf.github.io/eunomia-bpf/opensnoop/app.wasm
+2022-10-11 14:11:56 URL:https://eunomia-bpf.github.io/eunomia-bpf/opensnoop/app.wasm [61274/61274] -> "/tmp/ebpm/app.wasm" [1]
+running and waiting for the ebpf events from perf event...
+{"ts":0,"pid":2344,"uid":0,"ret":26,"flags":0,"comm":"YDService","fname":"/proc/1718823/cmdline"}
+{"ts":0,"pid":2344,"uid":0,"ret":26,"flags":0,"comm":"YDService","fname":"/proc/1718824/cmdline"}
+{"ts":0,"pid":2344,"uid":0,"ret":26,"flags":0,"comm":"YDService","fname":"/proc/self/stat"}
+```
+
+opensnoop 会追踪进程的 open() 调用，即内核中所有的打开文件操作，这里我们可以看到进程的 PID、UID、返回值、调用标志、进程名和文件名等信息。内核态的 eBPF 程序会被包含在 WASM 模块中进行分发，在加载的时候通过 BTF 信息和 libbpf 进行重定位操作，以适应不同的内核版本。同时，由于用户态的相关处理代码完全由 WASM 编写，内核态由 eBPF 指令编写，因此不受具体指令集（x86、ARM 等）的限制，可以在不同的平台上运行。
+
+## 使用 WASM 开发和打包 eBPF 程序
+
+同样，以上文所述的 sigsnoop 为例，要跟踪进程的信号发送和接收，我们首先需要在 sigsnoop.bpf.c 中编写内核态的 eBPF 代码：
+
+```c
+#include <vmlinux.h>
+#include <bpf/bpf_helpers.h>
+#include "sigsnoop.bpf.h"
+
+const volatile pid_t filtered_pid = 0;
+.....
+
+struct {
+ __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+ __uint(key_size, sizeof(__u32));
+ __uint(value_size, sizeof(__u32));
+} events SEC(".maps");
+
+SEC("tracepoint/signal/signal_generate")
+int sig_trace(struct trace_event_raw_signal_generate *ctx)
+{
+ struct event event = {};
+ pid_t tpid = ctx->pid;
+ int ret = ctx->errno;
+ int sig = ctx->sig;
+ __u64 pid_tgid;
+ __u32 pid;
+
+ ...
+ pid_tgid = bpf_get_current_pid_tgid();
+ pid = pid_tgid >> 32;
+ if (filtered_pid && pid != filtered_pid)
+  return 0;
+
+ event.pid = pid;
+ event.tpid = tpid;
+ event.sig = sig;
+ event.ret = ret;
+ bpf_get_current_comm(event.comm, sizeof(event.comm));
+ bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
+ return 0;
+}
+
+char LICENSE[] SEC("license") = "Dual BSD/GPL";
+```
+
+这里我们使用 `tracepoint/signal/signal_generate` 这个 tracepoint 来在内核中追踪信号的产生事件。内核态代码通过 BPF_MAP_TYPE_PERF_EVENT_ARRAY 往用户态导出信息，为此我们需要在 sigsnoop.bpf.h 头文件，中定义一个导出信息的结构体：
+
+```c
+#ifndef __SIGSNOOP_H
+#define __SIGSNOOP_H
+
+#define TASK_COMM_LEN 16
+
+struct event {
+ unsigned int pid;
+ unsigned int tpid;
+ int sig;
+ int ret;
+ char comm[TASK_COMM_LEN];
+};
+
+#endif /* __SIGSNOOP_H */
+```
+
+可以直接使用 eunomia-bpf 的编译工具链将其编译为 JSON 格式，生成一个 package.json 文件，并且可以直接使用 ecli 加载运行：
+
+```console
+$ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest
+make
+  BPF      .output/client.bpf.o
+  GEN-SKEL .output/client.skel.h
+  CC       .output/client.o
+  CC       .output/cJSON.o
+  CC       .output/create_skel_json.o
+  BINARY   client
+  DUMP_LLVM_MEMORY_LAYOUT
+  DUMP_EBPF_PROGRAM
+  FIX_TYPE_INFO_IN_EBPF
+  GENERATE_PACKAGE_JSON
+
+$ sudo ./ecli run package.json
+running and waiting for the ebpf events from perf event...
+time pid tpid sig ret comm
+14:39:39 1723835 1723834 17 0 dirname
+14:39:39 1723836 1723834 17 0 chmod
+14:39:39 1723838 1723837 17 0 ps
+14:39:39 1723839 1723837 17 0 grep
+14:39:39 1723840 1723837 17 0 grep
+14:39:39 1723841 1723837 17 0 wc
+```
+
+我们所有的编译工具链都已经打包成了 docker 镜像的形式并发布到了 docker hub 上，可以直接开箱即用。此时动态加载运行的只有内核态的 eBPF 代码和一些辅助信息，帮助 eunomia-bpf 库自动获取内核态往用户态上报的事件。如果我们想要在用户态进行一些参数配置和调整，以及数据处理流程，我们需要在用户态编写代码，将内核态的 eBPF 代码和用户态的代码打包成一个完整的 eBPF 程序。
+
+可以直接一行命令，生成 eBPF 程序的用户态 WebAssembly 开发框架：
+
+```console
+$ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest gen-wasm-skel
+make
+  GENERATE_PACKAGE_JSON
+  GEN-WASM-SKEL
+$ ls
+app.c eunomia-include ewasm-skel.h package.json README.md  sigsnoop.bpf.c  sigsnoop.bpf.h
+```
+
+我们提供的是 C 语言版本的 WASM 开发框架，它包含如下这些文件：
+
+- ewasm-skel.h：用户态 WebAssembly 开发框架的头文件，包含了预编译的 eBPF 程序字节码，和 eBPF 程序框架辅助信息，用来动态加载；
+- eunomia-include：一些 header-only 的库函数和辅助文件，用来辅助开发；
+- app.c：用户态 WebAssembly 程序的主要代码，包含了 eBPF 程序的主要逻辑，以及 eBPF 程序的数据处理流程。
+
+以 sigsnoop 为例，用户态包含一些命令行解析、配置 eBPF 程序和数据处理的代码，会将根据 signal number 将信号事件的英文名称添加到事件中：
+
+```c
+....
+int main(int argc, const char** argv)
+{
+  struct argparse_option options[] = {
+        OPT_HELP(),
+        OPT_BOOLEAN('x', "failed", &failed_only, "failed signals only", NULL, 0, 0),
+        OPT_BOOLEAN('k', "killed", &kill_only, "kill only", NULL, 0, 0),
+        OPT_INTEGER('p', "pid", &target_pid, "target pid", NULL, 0, 0),
+  OPT_INTEGER('s', "signal", &target_signal, "target signal", NULL, 0, 0),
+        OPT_END(),
+    };
+
+  struct argparse argparse;
+  argparse_init(&argparse, options, usages, 0);
+  argparse_describe(&argparse, "Trace standard and real-time signals.\n", "");
+  argc = argparse_parse(&argparse, argc, argv);
+
+  cJSON *program = cJSON_Parse(program_data);
+  program = set_bpf_program_global_var(program, "filtered_pid", cJSON_CreateNumber(target_pid));
+  program = set_bpf_program_global_var(program, "target_signal", cJSON_CreateNumber(target_signal));
+  program = set_bpf_program_global_var(program, "failed_only", cJSON_CreateBool(failed_only));
+  return start_bpf_program(cJSON_PrintUnformatted(program));
+}
+
+int process_event(int ctx, char *e, int str_len)
+{
+ cJSON *json = cJSON_Parse(e);
+ int sig = cJSON_GetObjectItem(json, "sig")->valueint;
+ const char *name = sig_name[sig];
+ cJSON_AddItemToObject(json, "sig_name", cJSON_CreateString(name));
+ char *out = cJSON_PrintUnformatted(json);
+ printf("%s\n", out);
+ return 0;
+}
+```
+
+最后使用容器镜像即可一行命令完成 WebAssembly/eBPF 程序的编译和打包，使用 ecli 即可一键运行：
+
+```console
+$ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest build-wasm
+make
+  GENERATE_PACKAGE_JSON
+  BUILD-WASM
+build app.wasm success
+$ sudo ./ecli run app.wasm -h
+Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
+```
+
+由于我们基于一次编译、到处运行的 libbpf 框架完成加载和启动 eBPF 程序的操作，因此编译和运行两个步骤是完全分离的，可以通过网络或任意方式直接进行 eBPF 程序的分发和部署，不依赖于特定内核版本。借助 WebAssembly 的轻量级特性，eBPF 程序的启动速度也比通常的使用镜像形式分发的 libbpf 程序快上不少，通常只需不到 100 ms 的时间即可完成，比起使用 BCC 部署启动时，使用 LLVM、Clang 编译运行消耗的时间和大量资源，更是有了质的飞跃。
+
+上面提及的示例程序的完整代码，可以参考这里[6]。
+
+## 演示视频
+
+我们也有一个在 B 站上的演示视频，演示了如何从 bcc/libbpf-tools 中移植一个 eBPF 工具程序到 eunomia-bpf 中，并且使用 WASM 或 JSON 文件来分发、加载 eBPF 程序：[https://www.bilibili.com/video/BV1JN4y1A76k](https://www.bilibili.com/video/BV1JN4y1A76k)
+
+`ecli` 是基于我们底层的 eunomia-bpf 库和运行时实现的一个简单的命令行工具。我们的项目架构如下图所示：
+
+![arch](../img/eunomia-arch.png)
+
+`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
+
+使用 WASM 或 JSON 编译分发 eBPF 程序的流程图大致如下：
+
+![flow](../img/eunomia-bpf-flow.png)
+
+大致来说，整个 eBPF 程序的编写和加载分为三个部分：
+
+1. 用 eunomia-cc 工具链将内核的 eBPF 代码骨架和字节码编译为 JSON 格式
+2. 在用户态开发的高级语言（例如 C 语言）中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
+3. 将用户态程序和 JSON 数据一起编译为 WASM 字节码并打包为 WASM 模块，然后在目标机器上加载并运行 WASM 程序
+4. 从 WASM 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
+
+我们需要完成的仅仅是少量的 native API 和 WASM 运行时的绑定，并且在 WASM 代码中处理 JSON 数据。你可以在一个单一的 `WASM` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 WASM 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
+
+另外，对于 eunomia-bpf 库而言，不需要 WASM 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 WASM 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
 
 ## 原理
+
+`ecli` 是基于我们底层的 eunomia-bpf 库和运行时实现的一个简单的命令行工具。我们的项目架构如下图所示：
+
+![arch](../img/eunomia-arch.png)
+
+`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
+
+使用 WASM 或 JSON 编译分发 eBPF 程序的流程图大致如下：
 
 ```mermaid
 graph TD
@@ -298,6 +532,17 @@ graph TD
   b1-->b2
   end
 ```
+
+大致来说，整个 eBPF 程序的编写和加载分为三个部分：
+
+1. 用 eunomia-cc 工具链将内核的 eBPF 代码骨架和字节码编译为 JSON 格式
+2. 在用户态开发的高级语言（例如 C 语言）中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
+3. 将用户态程序和 JSON 数据一起编译为 WASM 字节码并打包为 WASM 模块，然后在目标机器上加载并运行 WASM 程序
+4. 从 WASM 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
+
+我们需要完成的仅仅是少量的 native API 和 WASM 运行时的绑定，并且在 WASM 代码中处理 JSON 数据。你可以在一个单一的 `WASM` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 WASM 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
+
+另外，对于 eunomia-bpf 库而言，不需要 WASM 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 WASM 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
 
 ## 为我们的项目贡献代码
 
