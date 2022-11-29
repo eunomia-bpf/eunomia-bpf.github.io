@@ -35,6 +35,7 @@
 
 - [当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序](blog/ebpf-wasm.md)
 - [如何在 Linux 显微镜（LMP）项目中开启 eBPF 之旅](blog/lmp-eunomia.md)
+- [eunomia-bpf 0.3.0 发布：只需编写内核态代码，轻松构建、打包、发布完整的 eBPF 应用](blog/0.3.0-release.md)
 
 # tutorial
 

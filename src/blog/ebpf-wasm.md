@@ -104,7 +104,7 @@ opensnoop 会追踪进程的 open() 调用，即内核中所有的打开文件�
 ```c
 #include <vmlinux.h>
 #include <bpf/bpf_helpers.h>
-#include "sigsnoop.bpf.h"
+#include "sigsnoop.h"
 
 const volatile pid_t filtered_pid = 0;
 .....
@@ -143,7 +143,7 @@ int sig_trace(struct trace_event_raw_signal_generate *ctx)
 char LICENSE[] SEC("license") = "Dual BSD/GPL";
 ```
 
-这里我们使用 `tracepoint/signal/signal_generate` 这个 tracepoint 来在内核中追踪信号的产生事件。内核态代码通过 BPF_MAP_TYPE_PERF_EVENT_ARRAY 往用户态导出信息，为此我们需要在 sigsnoop.bpf.h 头文件，中定义一个导出信息的结构体：
+这里我们使用 `tracepoint/signal/signal_generate` 这个 tracepoint 来在内核中追踪信号的产生事件。内核态代码通过 BPF_MAP_TYPE_PERF_EVENT_ARRAY 往用户态导出信息，为此我们需要在 sigsnoop.h 头文件，中定义一个导出信息的结构体：
 
 ```c
 #ifndef __SIGSNOOP_H
@@ -199,7 +199,7 @@ make
   GENERATE_PACKAGE_JSON
   GEN-WASM-SKEL
 $ ls
-app.c eunomia-include ewasm-skel.h package.json README.md  sigsnoop.bpf.c  sigsnoop.bpf.h
+app.c eunomia-include ewasm-skel.h package.json README.md  sigsnoop.bpf.c  sigsnoop.h
 ```
 
 我们提供的是 C 语言版本的 WASM 开发框架，它包含如下这些文件：

@@ -30,10 +30,10 @@ time ts pid uid ret flags comm fname
 
 使用 eunomia-bpf 可以帮助你只需要编写内核态应用程序，不需要编写任何用户态辅助框架代码；需要编写的代码由两个部分组成：
 
-- 头文件 opensnoop.bpf.h 里面定义需要导出的 C 语言结构体：
+- 头文件 opensnoop.h 里面定义需要导出的 C 语言结构体：
 - 源文件 opensnoop.bpf.c 里面定义 BPF 代码：
 
-头文件 opensnoop.bpf.h
+头文件 opensnoop.h
 
 ```c
 /* SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause) */
@@ -71,7 +71,7 @@ struct event {
 // Copyright (c) 2020 Netflix
 #include <vmlinux.h>
 #include <bpf/bpf_helpers.h>
-#include "opensnoop.bpf.h"
+#include "opensnoop.h"
 
 struct args_t {
 	const char *fname;

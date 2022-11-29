@@ -75,7 +75,7 @@ API 设计：
   - makefile
   - .gitignore
   - xxx.bpf.c
-  - xxx.bpf.h
+  - xxx.h
   - config.json/toml
 
     生成一个最简单的 libbpf-bootstrap 编译框架，不带包管理器，没有配置文件，没有依赖；需要一个镜像；

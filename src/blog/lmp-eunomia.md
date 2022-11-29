@@ -94,7 +94,7 @@ $ cd hello/
 $ ll
 ...
 -rw-rw-r--  1 a a 2910 10月 17 23:18 bootstrap.bpf.c
--rw-rw-r--  1 a a  392 10月 17 23:18 bootstrap.bpf.h
+-rw-rw-r--  1 a a  392 10月 17 23:18 bootstrap.h
 -rw-rw-r--  1 a a  221 10月 17 23:18 config.json
 drwxrwxr-x  8 a a 4096 10月 17 23:18 .git/
 drwxrwxr-x  3 a a 4096 10月 17 23:18 .github/
@@ -168,7 +168,7 @@ running and waiting for the ebpf events from ring buffer...
 
 ## 另一个例子：使用 eBPF 打印进程内存使用状况
 
-可以将 bootstrap.bpf.c 重命名为 procstat.bpf.c，将 bootstrap.bpf.h 重命名为 procstat.bpf.h，然后编译运行。对应的源代码如下：
+可以将 bootstrap.bpf.c 重命名为 procstat.bpf.c，将 bootstrap.h 重命名为 procstat.h，然后编译运行。对应的源代码如下：
 
 procstat.bpf.c
 
@@ -219,7 +219,7 @@ int BPF_KPROBE(finish_task_switch, struct task_struct *prev)
 }
 ```
 
-proc.bpf.h
+proc.h
 
 ```c
 #ifndef __BOOTSTRAP_H

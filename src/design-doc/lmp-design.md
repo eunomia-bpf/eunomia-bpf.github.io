@@ -110,16 +110,16 @@ $ lmp init opensnoop  # 生成一个项目模板
 init project opensnoop success.
 $ cd opensnoop  # 会创建一个新的目录
 $ ls # 生成如下一些文件
-opensnoop.bpf.c opensnoop.bpf.h README.md config.json .gitignore
+opensnoop.bpf.c opensnoop.h README.md config.json .gitignore
 $ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest # 构建内核态程序
 $ ls # 生成如下一些文件，package.json 是编译生成的产物
-opensnoop.bpf.c opensnoop.bpf.h README.md config.json package.json .gitignore
+opensnoop.bpf.c opensnoop.h README.md config.json package.json .gitignore
 $ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest gen-wasm-skel # 生成 wasm 用户态项目模板
 make
   GENERATE_PACKAGE_JSON
   GEN-WASM-SKEL
 $ ls # 生成如下一些文件
-app.c eunomia-include ewasm-skel.h package.json README.md  opensnoop.bpf.c  opensnoop.bpf.h
+app.c eunomia-include ewasm-skel.h package.json README.md  opensnoop.bpf.c  opensnoop.h
 $ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest build-wasm
 make
   GENERATE_PACKAGE_JSON

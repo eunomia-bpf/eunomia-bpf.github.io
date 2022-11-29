@@ -6,7 +6,7 @@ The only file you will need to write is:
 
 ```shell
 your_program.bpf.c
-your_program.bpf.h  # optional, if you want to use ring buffer to export events
+your_program.h  # optional, if you want to use ring buffer to export events
 ```
 
 after that, simply run this:
@@ -56,7 +56,7 @@ $ sudo ./ecli run https://eunomia-bpf.github.io/ebpm-template/package.json
 
 1. We use the same c ebpf code as libbpf, so most libbpf ebpf c code can run without any modification.
 2. Supported ebpf program types: `kprobe`, `tracepoint`, `fentry`, we will add more types in the future.
-3. If you want to use ring buffer to export events, you need to add `your_program.bpf.h` to your repo, and
+3. If you want to use ring buffer to export events, you need to add `your_program.h` to your repo, and
    define the export data type in it, the export data type should be a C `struct`, for example:
 
     ```c
