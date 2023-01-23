@@ -59,4 +59,3 @@ cat-42755   [003] d...1 48755.529860: bpf_trace_printk: BPF triggered from PID 4
 ```
 
 Our compiled eBPF code can also be adapted to multiple kernel versions. You can directly copy package.json to another machine, and then run it directly without recompiling (CO-RE: Compile Once Run Every Where). `package.json` can be transmitted and distributed over the network, usually, the compressed version is only a few kb to tens of kb.
-
