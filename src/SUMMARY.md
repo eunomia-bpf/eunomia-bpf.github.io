@@ -5,11 +5,11 @@
 - [Introduction](introduction-en.md)
 - [Introduction(Chinese)](introduction.md)
 
-# User Mannual
+# User Manual
 
 - [Installation](installation.md)
 - [Quick Start](quickstart.md)
-- [Mannual(Chinese)](mannual.md)
+- [Manual(Chinese)](mannual.md)
 
 # Architecture
 
