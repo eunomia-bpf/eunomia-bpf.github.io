@@ -26,7 +26,7 @@ Wasm-bpf 项目已经实现了内核态 eBPF 虚拟机和用户态之间系统�
 
 之前在 eunomia-bpf 项目中，已经有一些将 eBPF 和 Wasm 结合的探索，但它并不是为了 Wasm 原生应用的场景设计的，不符合 Wasm-eBPF 的通用编程模型，性能也较为低下，因此我们创建了一个新的开源仓库，让 Wasm-bpf 项目专注于利用 eBPF 增强和扩展 WebAssembly 使用场景，并进一步完善对应的工具链和开发库支持：<https://github.com/eunomia-bpf/wasm-bpf>
 
-## eBPF 能给 Wasm 带来什么？
+## eBPF：安全和有效地扩展内核
 
 eBPF 是一项革命性的技术，起源于 Linux 内核，可以在操作系统的内核中运行沙盒程序。它被用来安全和有效地扩展内核的功能，而不需要改变内核的源代码或加载内核模块。
 
@@ -92,7 +92,7 @@ eBPF 程序是以函数为单位的、事件驱动的，当内核或用户空间
 - 通过 ring buffer 和 perf event polling 从内核态向用户态高效发送信息（对于 ring buffer 来说，也可以反之）；
 - 几乎可以适配于所有的使用 eBPF 程序的应用场景，并可以随着内核功能的添加不断演化和扩展，同时不需要变动 Wasm 虚拟机的系统接口。
 
-这就是目前 Wasm-bpf 项目所做的工作。
+这就是目前 Wasm-bpf 项目所做的工作。我们也提出了一个新的 WASI 的 Proposal: WASI-eBPF[7].
 
 在 Wasm-bpf 项目中，所有 Wasm 和 eBPF 虚拟机之间的通信都无需经过序列化、反序列化机制，通过工具链中代码生成技术和 BTF（BPF 类型格式[7]）信息的支持，我们可以实现在 eBPF 和 Wasm 之间可能不同的结构体内存布局、不同的大小端机制、不同的指针宽度之间的正确通信，在运行时几乎不会引入任何额外的开销；通过 eBPF Maps 通信的时候数据可以直接由内核态复制到 Wasm 虚拟机的内存中，避免多次拷贝带来的额外损耗。同时，通过自动生成 skeleton （bpf 代码框架）和类型定义的方式，用户态程序的 eBPF-Wasm 开发体验也得到了非常大的改善。
 
@@ -100,7 +100,9 @@ eBPF 程序是以函数为单位的、事件驱动的，当内核或用户空间
 
 通常一个编译好的 eBPF-Wasm 模块只有大约 90Kb，在不到 100ms 内即可以完成动态加载进内核并执行的过程。我们也在仓库中提供了几个例子，分别对应于可观测、网络、安全等多种场景。
 
-更详细的原理解析与性能分析，以及对应的示例代码，我们会在下一篇文章进行介绍。
+感谢华南理工大学赖晓铮副教授、西安邮电大学陈莉君教授团队和达坦科技对 Wasm 和 eBPF 相结合的指导与帮助，在接下来的工作中，我们会一同针对一些 Wasm-bpf 具体的应用场景，进行更深入的研究与探讨，并在下一篇 blog 中给出更详细的原理解析与性能分析，以及对应的一些示例代码。
+
+Wasm-bpf 编译工具链与运行时模块等目前由 eunomia-bpf 开源社区开发与维护，感谢中科院软件所 PLCT 实验室对社区的大力支持和资助，感谢社区同伴们的贡献。接下来，我们也会在对应的 eBPF 和 Wasm 相关的工具链和运行时方面，进行更多的完善和探索，并积极向上游社区反馈和贡献。
 
 ## 参考资料
 
@@ -110,9 +112,6 @@ eBPF 程序是以函数为单位的、事件驱动的，当内核或用户空间
 - [4] 什么是 eBPF：<https://ebpf.io/what-is-ebpf>
 - [5] WebAssembly：无需容器的 Docker：<https://zhuanlan.zhihu.com/p/595257541>
 - [6] 云原生项目可扩展性的利器 WebAssembly 简介 <https://mp.weixin.qq.com/s/fap0bl6GFGi8zN5BFLpkCw>
-- [7] BPF BTF 详解：<https://www.ebpf.top/post/kernel_btf/>
-- [8] BPF 可移植性和 CO-RE（一次编译，到处运行）：<https://cloud.tencent.com/developer/article/1802154>
-
-感谢华南理工大学赖晓铮副教授、西安邮电大学陈莉君教授团队和达坦科技对 Wasm-bpf 社区项目的指导与帮助，
-
-Wasm-bpf 编译工具链与运行时模块等目前由 eunomia-bpf 开源社区开发与维护，感谢中科院软件所 PLCT 实验室对社区的大力支持和资助，
+- [7] WASI-eBPF: <https://github.com/WebAssembly/WASI/issues/513>
+- [8] BPF BTF 详解：<https://www.ebpf.top/post/kernel_btf/>
+- [9] BPF 可移植性和 CO-RE（一次编译，到处运行）：<https://cloud.tencent.com/developer/article/1802154>
