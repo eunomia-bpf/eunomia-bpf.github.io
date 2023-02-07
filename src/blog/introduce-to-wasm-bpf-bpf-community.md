@@ -6,11 +6,17 @@ Wasm 最初是以浏览器安全沙盒为目的开发的，发展到目前为止
 
 Wasm-bpf 是一个全新的开源项目[1]，它定义了一套 eBPF 相关系统接口的抽象，并提供了一套对应的开发工具链、库以及通用的 Wasm + eBPF 运行时平台实例，让任意 Wasm 虚拟机或者 Wasm 轻量级容器中的应用，有能力将使用场景下沉和拓展到内核态，获取内核态和用户态的几乎所有数据，在网络、安全等多个方面实现对整个操作系统层面的可编程控制，从而极大的拓展 WebAssembly 生态在非浏览器端的应用场景。
 
-## 基于 eBPF 的系统接口，为 Wasm 带来更多可能
+## 基于 eBPF 的系统接口，为云原生 WebAssembly 带来更多可能
+
+### Wasm & WASI
 
 也许你也已经看过 Solomon Hykes (Docker的创始人之一)这句话：
 
 > 如果在2008年已经有了 WASM + WASI，我们根本不需要创建 Docker。 Wasm 就有这么重要。 服务端的 WebAssembly 是计算的未来。
+
+2022 年，WebAssembly（通常缩写为 Wasm）成为了焦点：新的 Wasm 初创企业出现，老牌公司宣布支持 Wasm，Bytecode Alliance 发布了许多 Wasm 标准，Cloud Native Computing Foundation 举办了两次 WasmDay 活动，而其中最大的 Wasm 用户之一 Figma 被 Adobe 以惊人的 200 亿美元的价格收购。
+
+Wasm 是一种二进制格式。许多不同的语言都可以编译为相同的格式，并且该二进制格式可以在大量操作系统和体系结构上运行。Java 和 .NET 在这方面也很相似，但是 Wasm 有一个重要的区别：Wasm 运行时不信任执行的二进制文件。Wasm 应用程序被隔离在沙盒中，只能访问用户明确允许的资源（如文件或环境变量）。Wasm 还有许多其他理想的特性（例如非常出色的性能），但正是它的安全模型使 Wasm 在广泛的环境中使用，从浏览器到边缘和 IoT，甚至到云端。
 
 因为无法依赖浏览器中现有可用的 JavaScript 引擎接口，所以目前大多数在浏览器外运行的 Wasm 轻量级容器需要使用 WASI（WebAssembly 系统接口）。这些运行时允许 Wasm 应用程序以与 POSIX 类似（但不完全相同）的方式与其 host 操作系统交互。
 
@@ -18,7 +24,9 @@ Wasm-bpf 是一个全新的开源项目[1]，它定义了一套 eBPF 相关系�
 
 这也是我们希望建立 Wasm-bpf 项目的初衷：借助当前内核态 eBPF 提供的系统接口以及和用户态交互的能力，拓展整个 WASI 的生态蓝图，为 Wasm 应用带来更多可能的使用场景，同时也能在用户态增强 eBPF 程序的能力。
 
-或者换句话说，类似于浏览器中运行的 Wasm 程序，通过 JavaScript 引擎接口访问浏览器提供的各种系统资源，Wasm-bpf 的方案就是借助 eBPF 虚拟机访问操作系统的各类资源；得益于 eBPF 目前在 Linux 内核甚至 Windows 等其他操作系统中的广泛支持，以及不同内核版本和架构之间的可移植性，和内核 BPF 验证引擎的可靠性，我们仍然可以在一定程度上保证应用的可移植性和安全边界。
+或者换句话说，类似于浏览器中运行的 Wasm 程序，可以通过 JavaScript 引擎接口访问浏览器提供的各种系统资源，Wasm-bpf 的方案就是借助 eBPF 虚拟机接口访问操作系统的各类资源；得益于 eBPF 目前在 Linux 内核甚至 Windows 等其他操作系统中的广泛支持，以及不同内核版本和架构之间的可移植性，和内核 BPF 验证引擎的可靠性，我们仍然可以在一定程度上保证应用的可移植性和安全边界。
+
+### Wasm-bpf：超轻量级 Wasm + eBPF 通用运行时平台
 
 Wasm-bpf 项目已经实现了内核态 eBPF 虚拟机和用户态之间系统接口完整的抽象机制，并提供了对应的工具链以将 eBPF 应用编译为 Wasm 模块，帮助进行内核态 eBPF 和用户态 Wasm 之间无序列化，共享内存的高效双向通信，并通过代码生成技术，提供和其他用户态 eBPF 开发框架几乎一致的、简单便捷的开发体验。借助 Wasm 组件模型不断完善的生态支持，我们也可以为 eBPF 社区带来更多用户态开发语言，不同语言实现的可观测性、网络等 eBPF 应用和数据处理插件也可以被轻松集成、复用、统一管理。
 
@@ -28,15 +36,7 @@ Wasm-bpf 项目已经实现了内核态 eBPF 虚拟机和用户态之间系统�
 
 ## eBPF：安全和有效地扩展内核
 
-eBPF 是一项革命性的技术，起源于 Linux 内核，可以在操作系统的内核中运行沙盒程序。它被用来安全和有效地扩展内核的功能，而不需要改变内核的源代码或加载内核模块。
-
-从历史上看，由于内核具有监督和控制整个系统的特权能力，所以操作系统一直是实现可观察性、安全性和网络功能等多种能力的理想场所。同时，由于操作系统内核对稳定性和安全性的高要求，内核的新功能迭代通常非常谨慎，也很难接受自定义的、较少通用性的功能改进。因此，与用户态的更多功能相比，内核态操作系统层面的创新率历来都比较低[2]。
-
-<div align="center">
-<img src=https://ebpf.io/static/overview-3c0c9cd2010cb0b7fdc26e5e17d99635.png  width=60% />
-</div>
-
-eBPF 从根本上改变了这个公式。通过允许在操作系统内运行沙盒程序，应用程序开发人员可以在运行时，可编程地向操作系统动态添加额外的功能。然后，操作系统保证安全和执行效率，就像在即时编译（JIT）编译器和验证引擎的帮助下进行本地编译一样。eBPF 程序在内核版本之间是可移植的，并且可以自动更新，从而避免了工作负载中断和节点重启。
+eBPF 是一项革命性的技术，起源于 Linux 内核，可以在操作系统的内核中运行沙盒程序。它被用来安全和有效地扩展内核的功能，而不需要改变内核的源代码或加载内核模块。eBPF 通过允许在操作系统内运行沙盒程序，应用程序开发人员可以在运行时，可编程地向操作系统动态添加额外的功能。然后，操作系统保证安全和执行效率，就像在即时编译（JIT）编译器和验证引擎的帮助下进行本地编译一样。eBPF 程序在内核版本之间是可移植的，并且可以自动更新，从而避免了工作负载中断和节点重启。
 
 今天，eBPF被广泛用于各类场景：在现代数据中心和云原生环境中，可以提供高性能的网络包处理和负载均衡；以非常低的资源开销，做到对多种细粒度指标的可观测性，帮助应用程序开发人员跟踪应用程序，为性能故障排除提供洞察力；保障应用程序和容器运行时的安全执行，等等。可能性是无穷的，而 eBPF 在操作系统内核中所释放的创新才刚刚开始[3]。
 
@@ -56,7 +56,7 @@ Linux 内核的主要目的是抽象出硬件或虚拟硬件，并提供一个�
 
 实际上，两种方案都不常用，前者成本太高，后者则几乎没有可移植性。
 
-有了 eBPF，就有了一个新的选择，可以重新编程 Linux 内核的行为，而不需要改变内核的源代码或加载内核模块，同时保证在不同内核版本之间一定程度上的行为一致性和兼容性、以及安全性。为了实现这个目的，eBPF 程序也需要有一套对应的 API，允许用户定义的应用程序运行和共享资源 --- 换句话说，某种意义上讲 eBPF 虚拟机也提供了一套类似于系统调用的机制，借助 eBPF 和用户态通信的机制，Wasm 虚拟机和用户态应用也可以获得这套“系统调用”的完整使用权，一方面能可编程地扩展传统的系统调用的能力，另一方面实现更高效的可编程 IO 处理。
+有了 eBPF，就有了一个新的选择，可以重新编程 Linux 内核的行为，而不需要改变内核的源代码或加载内核模块，同时保证在不同内核版本之间一定程度上的行为一致性和兼容性、以及安全性。为了实现这个目的，eBPF 程序也需要有一套对应的 API，允许用户定义的应用程序运行和共享资源 --- 换句话说，某种意义上讲 eBPF 虚拟机也提供了一套类似于系统调用的机制，借助 eBPF 和用户态通信的机制，Wasm 虚拟机和用户态应用也可以获得这套“系统调用”的完整使用权，一方面能可编程地扩展传统的系统调用的能力，另一方面能在网络、文件系统等许多层次实现更高效的可编程 IO 处理。
 
 目前的 eBPF 仍然处于早期阶段，但是借助当前 eBPF 提供的内核接口和用户态交互的能力，经由 Wasm-bpf 的系统接口转换，Wasm 虚拟机中的应用已经几乎有能力获取内核以及用户态任意一个函数调用的数据和返回值（kprobe，uprobe...）；以很低的代价收集和理解所有系统调用，并获取所有网络操作的数据包和套接字级别的数据（tracepoint，socket...）；在网络包处理解决方案中添加额外的协议分析器，并轻松地编程任何转发逻辑（XDP，TC...），以满足不断变化的需求，而无需离开Linux内核的数据包处理环境。
 
@@ -81,7 +81,7 @@ eBPF 程序是以函数为单位的、事件驱动的，当内核或用户空间
 
 ### 在用户态 Wasm-eBPF 系统接口之上定义的全新 eBPF 开发框架
 
-这个项目本质上可以说是希望把 Wasm 沙箱当做在操作系统之上建立的另一个用户态运行空间，让 Wasm 应用在沙箱中实现和通常用户态中运行的 eBPF 应用一样的编程模型和执行逻辑。Wasm-bpf 会需要一个在 host（沙箱外部）构建的运行时模块，以及一些在沙箱内部被编译为 Wasm 字节码的运行时库来提供完整的支持。
+这个项目本质上可以说是希望把 Wasm 沙箱当做在操作系统之上建立的另一个用户态运行空间，让 Wasm 应用在沙箱中实现和通常用户态中运行的 eBPF 应用一样的编程模型和执行逻辑。Wasm-bpf 会需要一个在 host（沙箱外部）构建的运行时扩展，以及一些在沙箱内部被编译为 Wasm 字节码的运行时库来提供完整的支持。
 
 ![wasm](wasm-bpf-no-bcc.png)
 
@@ -94,11 +94,11 @@ eBPF 程序是以函数为单位的、事件驱动的，当内核或用户空间
 - 通过 ring buffer 和 perf event polling 从内核态向用户态高效发送信息（对于 ring buffer 来说，也可以反之）；
 - 几乎可以适配于所有的使用 eBPF 程序的应用场景，并可以随着内核功能的添加不断演化和扩展，同时不需要变动 Wasm 虚拟机的系统接口。
 
-这就是目前 Wasm-bpf 项目所做的工作。我们也提出了一个新的 WASI 的 Proposal: WASI-eBPF[7].
+这就是目前 Wasm-bpf 项目所做的工作。我们也提出了一个新的 WASI 的 Proposal: WASI-eBPF[8].
 
-在 Wasm-bpf 项目中，所有 Wasm 和 eBPF 虚拟机之间的通信都无需经过序列化、反序列化机制，通过工具链中代码生成技术和 BTF（BPF 类型格式[12]）信息的支持，我们可以实现在 eBPF 和 Wasm 之间可能不同的结构体内存布局、不同的大小端机制、不同的指针宽度之间的正确通信，在运行时几乎不会引入任何额外的开销；通过 eBPF Maps 通信的时候数据可以直接由内核态复制到 Wasm 虚拟机的内存中，避免多次拷贝带来的额外损耗。同时，通过自动生成 skeleton （bpf 代码框架）和类型定义的方式，用户态程序的 eBPF-Wasm 开发体验也得到了非常大的改善。
+在 Wasm-bpf 项目中，所有 Wasm 和 eBPF 虚拟机之间的通信都无需经过序列化、反序列化机制，通过工具链中代码生成技术和 BTF（BPF 类型格式[9]）信息的支持，我们可以实现在 eBPF 和 Wasm 之间可能不同的结构体内存布局、不同的大小端机制、不同的指针宽度之间的正确通信，在运行时几乎不会引入任何额外的开销；通过 eBPF Maps 通信的时候数据可以直接由内核态复制到 Wasm 虚拟机的内存中，避免多次拷贝带来的额外损耗。同时，通过自动生成 skeleton （bpf 代码框架）和类型定义的方式，用户态程序的 eBPF-Wasm 开发体验也得到了非常大的改善。
 
-得益于 libbpf 提供的 CO-RE（Compile-Once, Run Everywhere）技术，在不同内核版本之间移植 eBPF 字节码对象，也不需要引入额外的重新编译流程，运行时也没有任何的 LLVM/Clang 依赖[12]。
+得益于 libbpf 提供的 CO-RE（Compile-Once, Run Everywhere）技术，在不同内核版本之间移植 eBPF 字节码对象，也不需要引入额外的重新编译流程，运行时也没有任何的 LLVM/Clang 依赖[10]。
 
 通常一个编译好的 eBPF-Wasm 模块只有大约 90Kb，在不到 100ms 内即可以完成动态加载进内核并执行的过程。我们也在仓库中提供了几个例子，分别对应于可观测、网络、安全等多种场景。
 
@@ -110,13 +110,13 @@ Wasm-bpf 编译工具链与运行时模块等目前由 eunomia-bpf 开源社区�
 
 - [1] wasm-bpf Github 开源地址：<https://github.com/eunomia-bpf/wasm-bpf>
 - [2] 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
-- [3] <https://ebpf.io/>
-- [4] 什么是 eBPF：<https://ebpf.io/what-is-ebpf>
-- [5] Offensive BPF: Understanding and using bpf_probe_write_user <https://embracethered.com/blog/posts/2021/offensive-bpf-libbpf-bpf_probe_write_user/>
-- [6] 云原生安全攻防｜使用eBPF逃逸容器技术分析与实践：<https://security.tencent.com/index.php/blog/msg/206>
-- [7] kernel-versions.md: <https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md>
-- [8] WebAssembly：无需容器的 Docker：<https://zhuanlan.zhihu.com/p/595257541>
-- [9] 云原生项目可扩展性的利器 WebAssembly 简介 <https://mp.weixin.qq.com/s/fap0bl6GFGi8zN5BFLpkCw>
+- [3] WebAssembly：无需容器的 Docker：<https://zhuanlan.zhihu.com/p/595257541>
+- [4] 云原生项目可扩展性的利器 WebAssembly 简介 <https://mp.weixin.qq.com/s/fap0bl6GFGi8zN5BFLpkCw>
+- [5] <https://ebpf.io/>
+- [6] 什么是 eBPF：<https://ebpf.io/what-is-ebpf>
+- [7] Offensive BPF: Understanding and using bpf_probe_write_user <https://embracethered.com/blog/posts/2021/offensive-bpf-libbpf-bpf_probe_write_user/>
+- [8] 云原生安全攻防｜使用eBPF逃逸容器技术分析与实践：<https://security.tencent.com/index.php/blog/msg/206>
+- [9] kernel-versions.md: <https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md>
 - [10] WASI-eBPF: <https://github.com/WebAssembly/WASI/issues/513>
 - [11] BPF BTF 详解：<https://www.ebpf.top/post/kernel_btf/>
 - [12] BPF 可移植性和 CO-RE（一次编译，到处运行）：<https://cloud.tencent.com/developer/article/1802154>
