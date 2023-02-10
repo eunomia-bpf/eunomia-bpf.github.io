@@ -1,41 +1,5 @@
 # 300+ 行从零开始实现超轻量级 Wasm + eBPF 通用运行时平台
 
-## 什么是wasm-bpf
-
-本项目名为wasm-bpf，那么什么是wasm-bpf呢？
-
-一个 WebAssembly eBPF 库和运行时， 由 [CO-RE](https://facebookmicrosites.github.io/bpf/blog/2020/02/19/bpf-portability-and-co-re.html)(一次编写 – 到处运行) [libbpf](https://github.com/libbpf/libbpf) 和 [WAMR](https://github.com/bytecodealliance/wasm-micro-runtime) 强力驱动。
-
-- `通用`: 给 WASM 提供大部分的 eBPF 功能。 比如从 `ring buffer` 或者 `perf buffer` 中获取数据、 通过 `maps` 提供 `内核` eBPF 和 `用户态` Wasm 程序之间的双向通信、 动态 `加载`, `附加` 或者 `解除附加` eBPF程序等。 支持大量的 eBPF 程序类型和 map 类型， 覆盖了用于 `tracing（跟踪）`, `networking（网络）`, `security（安全）` 的使用场景。
-- `高性能`: 对于复杂数据类型，没有额外的 `序列化` 开销。 通过 `共享内存` 来避免在 Host 和 WASM 端之间的额外数据拷贝。
-- `简单便捷的开发体验`: 提供和 [libbpf-bootstrap](https://github.com/libbpf/libbpf-bootstrap) 相似的开发体验， `自动生成` Wasm-eBPF 的 `skeleton` 头文件以及用于绑定的 `类型` 定义。
-- `非常轻量`: 运行时的示例实现只有 `300+` 行代码, 二进制文件只有 `1.5 MB` 的大小。 编译好的 WASM 模块只有 `~90K` 。你可以非常容易地使用任何语言，在任何平台上建立你自己的 Wasm-eBPF 运行时，使用相同的工具链来构建应用！
-
-wasm-bpf将ebpf技术和wasm进行了结合，因而在进一步介绍wasm-bpf之前，我们需要先了解一下什么是ebpf和wasm？
-
-## 什么是ebpf
-
-eBPF (extended Berkeley Packet Filter) 是一种内核级的程序技术，可用于在 Linux 内核中运行轻量级的程序。eBPF 可以用于各种应用场景，如网络数据包过滤、内核跟踪、内核性能分析、安全监测等。
-
-由于eBPF 程序独立于内核代码，可以在运行时编译和加载，且不会对内核造成影响，使得eBPF渐渐成为热门的内核观测工具。此外，eBPF 还提供了与内核交互的机制，可以让开发者获得系统内部的数据，以便对其进行分析和处理。
-
-ebpf有很多的应用场景，比如：
-
-+ **观测和跟踪**
-  将 eBPF 程序附加到跟踪点以及内核和用户应用探针点的能力，使得应用程序和系统本身的运行时行为具有前所未有的可见性。eBPF不依赖于操作系统暴露的静态计数器和测量，而是实现了自定义指标的收集和内核内聚合，并基于广泛的可能来源生成可见性事件。
-+ **网络**
-  可编程性和效率的结合使得 eBPF 自然而然地满足了网络解决方案的所有数据包处理要求。eBPF 的可编程性使其能够在不离开 Linux内核的包处理上下文的情况下，添加额外的协议解析器，并轻松编程任何转发逻辑以满足不断变化的需求。JIT 编译器提供的效率使其执行性能接近于本地编译的内核代码。
-+ **安全**
-  看到和理解所有系统调用的基础上，将其与所有网络操作的数据包和套接字级视图相结合，可以采用革命性的新方法来确保系统的安全。虽然系统调用过滤、网络级过滤和进程上下文跟踪等方面通常由完全独立的系统处理，但 eBPF 允许将所有方面的可视性和控制结合起来，以创建在更多上下文上运行的、具有更好控制水平的安全系统。
-
-## 什么是wasm？
-
-自从Brendan Eich创造了JavaScript语言以来，一直没有静态类型，由于JavaScript的动态变量，上一秒可能是Array，下一秒就变成了Object，导致引擎所做的优化失去了作用，这也是运行效率降低的原因。
-
-为解决这个问题，WebAssembly的前身——asm.js诞生了。但是无论asm.js对静态类型的问题解决的再好，它始终逃不过要经过Parser和ByteCode Compiler，这也是JavaScript代码在引擎执行过程中最耗时的两步。
-
-在2015年，我们迎来了WebAssembly。WebAssembly是C、C++、Rust、Go、Java、C#等语言的编译目标，经过编译器编译之后的二进制代码，无需经过Parser和ByteCode Compiler这两步，比asm.js更快。WebAssembly强制使用静态类型，在语法上完全脱离JavaScript，同时具有沙盒化的执行环境，安全性更好。
-
 ## wasm-bpf中ebpf和wasm的通信过程
 
 libbpf API 为 wasm 程序提供了一个仅包含头文件的库，您可以在 libbpf-wasm.h（wasm-include/libbpf-wasm.h）中找到它。wasm 程序可以使用 libbpf API 和 syscall 操作 BPF 对象，例如：
