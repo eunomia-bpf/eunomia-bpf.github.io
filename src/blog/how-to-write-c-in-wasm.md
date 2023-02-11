@@ -1,30 +1,30 @@
-# 在 WebAssembly 中使用 C/C++ 和 Rust 编写 eBPF 程序并发布
+# 在 WebAssembly 中使用 C/C++ 和 libbpf 编写 eBPF 程序
 
 > 作者：于桐，郑昱笙
 
-eBPF（extended Berkeley Packet Filter）是一种高性能的内核虚拟机，可以运行在内核空间中，以收集系统和网络信息。随着计算机技术的不断发展，eBPF 的功能日益强大，并且已经成为各种效率高效的在线诊断和跟踪系统，以及构建安全的网络、服务网格的重要组成部分。
+eBPF（extended Berkeley Packet Filter）是一种高性能的内核虚拟机，可以运行在内核空间中，用来收集系统和网络信息。随着计算机技术的不断发展，eBPF 的功能日益强大，进而被用来构建各种效率高效的在线诊断和跟踪系统，以及安全的网络和服务网格。
 
 WebAssembly（Wasm）最初是以浏览器安全沙盒为目的开发的，发展到目前为止，WebAssembly 已经成为一个用于云原生软件组件的高性能、跨平台和多语言软件沙箱环境，Wasm 轻量级容器也非常适合作为下一代无服务器平台运行时，或在边缘计算等资源受限的场景高效执行。
 
-现在，借助 Wasm-bpf 编译工具链和运行时，我们可以使用 Wasm 将 eBPF 程序编写为跨平台的模块，使用 C/C++ 和 Rust 编写程序。通过在 WebAssembly 中使用 eBPF 程序，我们不仅让 Wasm 应用获得 eBPF 的高性能、对系统接口的访问能力，还可以让 eBPF 程序享受到 Wasm 的沙箱、灵活性、跨平台性、和动态加载的能力，并且使用 Wasm 的 OCI 镜像来方便、快捷地分发和管理 eBPF 程序。通过结合这两种技术，我们将会给 eBPF 和 Wasm 生态来一个全新的开发体验！
+现在，借助 Wasm-bpf 编译工具链和运行时，我们可以使用 Wasm 将 eBPF 程序编写为跨平台的模块，同时使用 C/C++ 或 Rust 来编写 Wasm 程序。通过在 WebAssembly 中使用 eBPF 程序，我们不仅能让 Wasm 应用享受到 eBPF 的高性能和对系统接口的访问能力，还可以让 eBPF 程序使用到 Wasm 的沙箱、灵活性、跨平台性、和动态加载，并且使用 Wasm 的 OCI 镜像来方便、快捷地分发和管理 eBPF 程序。结合这两种技术，我们将会给 eBPF 和 Wasm 生态来一个全新的开发体验！
 
 ## 使用 Wasm-bpf 工具链在 Wasm 中编写、动态加载、分发运行 eBPF 程序
 
-Wasm-bpf 是一个全新的开源项目：<https://github.com/eunomia-bpf/wasm-bpf>。它定义了一套 eBPF 相关系统接口的抽象，并提供了一套对应的开发工具链、库以及通用的 Wasm + eBPF 运行时实例。它可以提供和 libbpf-bootstrap 相似的开发体验，自动生成对应的 skeleton 头文件，以及用于在 Wasm 和 eBPF 之间无序列化通信的数据结构定义。你可以非常容易地使用任何语言，在任何平台上建立你自己的 Wasm-eBPF 运行时，使用相同的工具链来构建应用。更详细的介绍，请参考我们的上一篇博客：[Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁](how-to-write-in-wasm.md)。
+Wasm-bpf 是一个全新的开源项目：<https://github.com/eunomia-bpf/wasm-bpf>。它定义了一套 eBPF 相关系统接口的抽象，并提供了一套对应的开发工具链、库以及通用的 Wasm + eBPF 运行时实例。它可以提供和 libbpf-bootstrap 相似的开发体验，自动生成对应的 skeleton 头文件，以及用于在 Wasm 和 eBPF 之间无序列化通信的数据结构定义。你可以非常容易地使用任何语言，在任何平台上建立你自己的 Wasm-eBPF 运行时，使用相同的工具链来构建应用。更详细的介绍，请参考我们的上一篇博客：[Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁](https://mp.weixin.qq.com/s/2InV7z1wcWic5ifmAXSiew)。
 
 基于 Wasm，我们可以使用多种语言构建 eBPF 应用，并以统一、轻量级的方式管理和发布。以我们构建的示例应用 bootstrap.wasm 为例，大小仅为 ~90K，很容易通过网络分发，并可以在不到 100ms 的时间内在另一台机器上动态部署、加载和运行，并且保留轻量级容器的隔离特性。运行时不需要内核头文件、LLVM、clang 等依赖，也不需要做任何消耗资源的重量级的编译工作。
 
-本文将以 C/C++/Rust 语言为例，讨论：
-
-- 使用 C/C++ 编写 eBPF 程序并编译为 Wasm 模块
-- 使用 Rust 编写 eBPF 程序并编译为 Wasm 模块
-- 使用 OCI 镜像发布、部署、管理 eBPF 程序，获得类似 Docker 的体验
+本文将以 C/C++ 语言为例，讨论 C/C++ 编写 eBPF 程序并编译为 Wasm 模块。使用 Rust 语言编写 eBPF 程序并编译为 Wasm 模块的具体示例，将在下一篇文章中描述。
 
 我们在仓库中提供了几个示例程序，分别对应于可观测、网络、安全等多种场景。
 
 ## 使用 C/C++ 编写 eBPF 程序并编译为 Wasm
 
-一般说来，在非 Wasm 沙箱的用户态空间，使用 libbpf-bootstrap 脚手架，可以快速、轻松地使用 C/C++构建 BPF 应用程序。编译、构建和运行 eBPF 程序（无论是采用什么语言），通常包含以下几个步骤：
+libbpf 是一个 C/C++ 的 eBPF 用户态加载和控制库，随着内核一起分发，几乎已经成为 eBPF 用户态事实上的 API 标准，libbpf 也支持 CO-RE(Compile Once – Run Everywhere) 的解决方案，即预编译的 bpf 代码可以在不同内核版本上正常工作，而无需为每个特定内核重新编译。我们希望尽可能的保持与 libbpf 的用户态 API 以及行为一致，尽可能减少应用迁移到 Wasm （如果需要的话）的成本。
+
+libbpf-bootstrap 为生成基于 libbpf 的 bpf 程序提供了模板,开发者可以很方便的使用该模板生成自定义的 bpf 程序。一般说来，在非 Wasm 沙箱的用户态空间，使用 libbpf-bootstrap 脚手架，可以快速、轻松地使用 C/C++构建 BPF 应用程序。
+
+编译、构建和运行 eBPF 程序（无论是采用什么语言），通常包含以下几个步骤：
 
 - 编写内核态 eBPF 程序的代码，一般使用 C/C++ 或 Rust 语言
 - 使用 clang 编译器或者相关工具链编译 eBPF 程序（要实现跨内核版本移植的话，需要包含 BTF 信息）。
@@ -196,9 +196,13 @@ struct event {
 static_assert(sizeof(struct event) == 168, "Size of event is not 168");
 ```
 
-**注意：此过程和工具并不总是必需的，你可以手动完成。**你可以手动编写所有事件结构体定义，使用 `__attribute__((packed))`避免填充字节，并在主机和wasm端之间转换所有指针为正确的整数。所有类型必须在 wasm 中定义与主机端相同的大小和布局。对于简单的事件这是很容易的，但对于复杂的程序却很难，因此我们创建了 wasm 特定的`bpftool`，用于从`BTF`信息中生成包含所有类型定义和正确结构体布局的C头文件，以便用户空间代码使用。可以通过类似的方案，一次性将 eBPF 程序中所有的结构体定义转换为 Wasm 端的内存布局，即可正确访问。借助 Wasm 的组件模型，我们还可以将这些 BTF 信息结构体定义作为 wit 类型声明输出，然后在用户空间代码中使用 wit-bindgen 工具一次性生成多种语言（如 C/C++/Rust/Go）的类型定义。
+**注意：此过程和工具并不总是必需的，对于简单的应用，你可以手动完成。**对于内核态和 Wasm 应用都使用 C/C++ 语言的情况下，你可以手动编写所有事件结构体定义，使用 `__attribute__((packed))` 避免填充字节，并在主机和 wasm 端之间转换所有指针为正确的整数。所有类型必须在 wasm 中定义与主机端相同的大小和布局。
 
-我们为 wasm 程序提供了一个仅包含头文件的 libbpf API 库，您可以在 libbpf-wasm.h（wasm-include/libbpf-wasm.h）中找到它。wasm 程序可以使用 libbpf API 和 syscall 操作 BPF 对象，例如：
+对于复杂的程序，手动确认内存布局的正确是分困难，因此我们创建了 wasm 特定的 `bpftool`，用于从 `BTF` 信息中生成包含所有类型定义和正确结构体布局的 C 头文件，以便用户空间代码使用。可以通过类似的方案，一次性将 eBPF 程序中所有的结构体定义转换为 Wasm 端的内存布局，并确保大小端一致，即可正确访问。
+
+对于 Wasm 中不是由 C 语言进行开发的情况下，借助 Wasm 的组件模型，我们还可以将这些 BTF 信息结构体定义作为 wit 类型声明输出，然后在用户空间代码中使用 wit-bindgen 工具一次性生成多种语言（如 C/C++/Rust/Go）的类型定义。这部分会在关于如何使用 Rust 在 Wasm 中编写 eBPF 程序的部分详细描述，我们也会将这些步骤和工具链继续完善，以改进 Wasm-bpf 程序的编程体验。
+
+我们为 wasm 程序提供了一个仅包含头文件的 libbpf API 库，您可以在 libbpf-wasm.h（wasm-include/libbpf-wasm.h）中找到它，它包含了一部分 libbpf 常用的用户态 API 和类型定义。Wasm 程序可以使用 libbpf API 操作 BPF 对象，例如：
 
 ```c
 /* Load and verify BPF application */
@@ -211,11 +215,11 @@ err = bootstrap_bpf__load(skel);
 err = bootstrap_bpf__attach(skel);
 ```
 
-rodata 部分用于存储 BPF 程序中的常量，这些值将在 bpftool gen skeleton 的时候由代码生成映射到 object 中正确的偏移量，因此不需要在 Wasm 中编译 libelf 库，运行时仍可动态加载和操作 BPF 对象。
+rodata 部分用于存储 BPF 程序中的常量，这些值将在 bpftool gen skeleton 的时候由代码生成映射到 object 中正确的偏移量,然后在 open 之后通过内存映射修改对应的值，因此不需要在 Wasm 中编译 libelf 库，运行时仍可动态加载和操作 BPF 对象。
 
 Wasm 端的 C 代码与本地 libbpf 代码略有不同，但它可以从 eBPF 端提供大部分功能，例如，从环形缓冲区或 perf 缓冲区轮询，从 Wasm 端和 eBPF 端访问映射，加载、附加和分离 BPF 程序等。它可以支持大量的 eBPF 程序类型和映射，涵盖从跟踪、网络、安全等方面的大多数 eBPF 程序的使用场景。
 
-由于wasm端缺少一些功能，例如 signal handler 还不支持（2023年2月），原始的C代码有可能无法直接编译为 wasm，您需要稍微修改代码以使其工作。我们将尽最大努力使 wasm 端的 libbpf API 与通常在用户空间运行的 libbpf API尽可能相似，以便用户空间代码可以在未来直接编译为 wasm。我们还将尽快提供更多语言绑定（Go等）的 wasm 侧 eBPF 程序开发库。
+由于 Wasm 端缺少一些功能，例如 signal handler 还不支持（2023年2月），原始的C代码有可能无法直接编译为 wasm，您需要稍微修改代码以使其工作。我们将尽最大努力使 wasm 端的 libbpf API 与通常在用户空间运行的 libbpf API尽可能相似，以便用户空间代码可以在未来直接编译为 wasm。我们还将尽快提供更多语言绑定（Go等）的 wasm 侧 eBPF 程序开发库。
 
 可以在用户态程序中使用 polling API 获取内核态上传的数据。它将是 ring buffer 和 perf buffer 的一个封装，用户空间代码可以使用相同的 API 从环形缓冲区或性能缓冲区中轮询事件，具体取决于BPF程序中指定的类型。例如，环形缓冲区轮询定义为`BPF_MAP_TYPE_RINGBUF`：
 
@@ -293,7 +297,7 @@ Tracing run queue latency... Hit Ctrl-C to end.
       2048 -> 4095       : 1        |                                        |
 ```
 
-runqlat 中使用 `map` API 来从用户态访问内核里的 `map` 直接读取数据，例如：
+runqlat 中使用 `map` API 来从用户态访问内核里的 `map` 并直接读取数据，例如：
 
 ```c
     while (!bpf_map_get_next_key(fd, &lookup_key, &next_key)) {
@@ -352,7 +356,7 @@ int socket_handler(struct __sk_buff *skb)
 }
 ```
 
-Linux Security Modules^[2]^ （LSM）是一个钩子的基于框架，用于在Linux内核中实现安全策略和强制访问控制。直到现在，能够实现实施安全策略目标的方式只有两种选择，配置现有的LSM模块（如AppArmor、SELinux），或编写自定义内核模块。
+Linux Security Modules（LSM）是一个基于钩子的框架，用于在Linux内核中实现安全策略和强制访问控制。直到现在，能够实现实施安全策略目标的方式只有两种选择，配置现有的LSM模块（如AppArmor、SELinux），或编写自定义内核模块。
 
 Linux Kernel 5.7 引入了第三种方式：LSM eBPF。LSM BPF 允许开发人员编写自定义策略，而无需配置或加载内核模块。LSM BPF 程序在加载时被验证，然后在调用路径中，到达LSM钩子时被执行。例如，我们可以在 Wasm 轻量级容器中，使用 lsm 限制文件系统操作：
 
@@ -377,223 +381,13 @@ int path_rmdir(const struct path *dir, struct dentry *dentry) {
 }
 ```
 
-## 使用 Rust 编写 eBPF 程序并编译为 Wasm
-
-Rust 可能是 WebAssembly生态系统中支持最好的语言。Rust 不仅支持几个 WebAssembly编译目标，而且 wasmtime、Spin、Wagi 和其他许多 WebAssembly 工具都是用 Rust 编写的。因此，我们也提供了 Rust 的开发示例：
-
-- Wasm 和 WASI 的 Rust 生态系统非常棒
-- 许多 Wasm 工具都是用 Rust 编写的，这意味着有大量的代码可以复用。
-- Spin 通常在对其他语言的支持之前就有Rust的功能支持
-- Wasmtime 是用 Rust编写的，通常在其他运行时之前就有最先进的功能。
-- 可以在 WebAssembly 中使用许多现成的 Rust 库。
-- 由于 Cargo 的灵活构建系统，一些 Crates 甚至有特殊的功能标志来启用Wasm的功能（例如Chrono）。
-- 由于 Rust 的内存管理技术，与同类语言相比，Rust 的二进制大小很小。
-
-我们同样提供了一个 Rust 的 eBPF SDK，可以使用 Rust 编写 eBPF 的用户态程序并编译为 Wasm。借助 aya-rs 提供的相关工具链支持，内核态的 eBPF 程序也可以用 Rust 进行编写，不过这里我们还是复用之前使用 C 语言编写的内核态程序。
-
-首先，我们需要使用 rust 提供的 wasi 工具链，创建一个新的项目：
-
-```sh
-rustup target add wasm32-wasi
-cargo new rust-helloworld
-```
-
-之后，可以使用 `Makefile` 运行 make 完成整个编译流程，并生成 `bootstrap.bpf.o` eBPF 字节码文件。
-
-### 使用 wit-bindgen 生成类型信息，用于内核态和 Wasm 模块之间通信
-
-wit-bindgen 项目是一套用于编译成 WebAssembly，并使用组件模型的语言的绑定生成器。绑定是用 *.wit 文件描述的，它指定了导入、导出，并促进绑定类型定义之间的重复使用。我们可以使用它来生成多种语言的类型定义，以便在内核态的 eBPF 和用户态的 Wasm 模块之间传递数据。
-
-我们首先需要在 `Cargo.toml` 配置文件中加入 `wasm-bpf-binding` 和 `wit-bindgen-guest-rust` 依赖：
-
-```toml
-wasm-bpf-binding = { path = "wasm-bpf-binding"}
-```
-
-这个包提供了 wasm-bpf 由运行时提供给 Wasm 模块，用于加载和控制 eBPF 程序的函数的绑定。
-
-使用btf2wit生成wit文件e
-由于WIT对标识符的限制，你在将btf转换为wit时可能会遇到很多问题。
-wit-bindgen 会为名称中包含"-"的函数生成奇怪的导入符号（例如，wasm-bpf-load-object 会有一个导入名称wasm-bpf-load-object，但名称wasm_bpf_load_object却暴露在访客面前）
-This package provides bindings to functions that wasm-bpf exposed to guest programs.
-
-```toml
-[dependencies]
-wit-bindgen-guest-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", version = "0.3.0" }
-
-[patch.crates-io]
-wit-component = {git = "https://github.com/bytecodealliance/wasm-tools", version = "0.5.0", rev = "9640d187a73a516c42b532cf2a10ba5403df5946"}
-wit-parser = {git = "https://github.com/bytecodealliance/wasm-tools", version = "0.5.0", rev = "9640d187a73a516c42b532cf2a10ba5403df5946"}
-```
-
-这个包支持用 wit 类型定义信息，为 rust 客户程序生成绑定。你不需要手动运行 wit-bindgen。
-
-接下来，我们使用 `btf2wit` 工具，生成 wit 文件。可以使用 `cargo install btf2wit` 安装我们提供的 btf2wit 工具，并编译生成 wit 信息：
-
-```console
-cd btf
-clang -target bpf -g event-def.c -c -o event.def.o
-btf2wit event.def.o -o event-def.wit
-cp *.wit ../wit/
-```
-
-对于 C 结构体生成的 wit 信息，大致如下：
-
-```wit
-default world host {
-    record event {
-         pid: s32,
-        ppid: s32,
-        exit-code: u32,
-        --pad0: list<s8>,
-        duration-ns: u64,
-        comm: list<s8>,
-        filename: list<s8>,
-        exit-event: s8,
-    }
-}
-```
-
-`wit-bindgen-guest-rust` 会为 wit 文件夹中的所有类型信息，自动生成 rust 的类型，例如：
-
-```rust
-#[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
-struct Event {
-    pid: i32,
-    ppid: i32,
-    exit_code: u32,
-    __pad0: [u8; 4],
-    duration_ns: u64,
-    comm: [u8; 16],
-    filename: [u8; 127],
-    exit_event: u8,
-}
-```
-
-### 编写用户态加载和处理代码
-
-为了在 WASI 上运行，需要为 main.rs 添加 `#![no_main]` 属性，并且 main 函数需要采用类似如下的形态：
-
-```rust
-#[export_name = "__main_argc_argv"]
-fn main(_env_json: u32, _str_len: i32) -> i32 {
-
-    return 0;
-}
-```
-
-用户态加载和挂载代码，和 C/C++ 中类似：
-
-```rust
-    let obj_ptr =
-        binding::wasm_load_bpf_object(bpf_object.as_ptr() as u32, bpf_object.len() as i32);
-    if obj_ptr == 0 {
-        println!("Failed to load bpf object");
-        return 1;
-    }
-    let attach_result = binding::wasm_attach_bpf_program(
-        obj_ptr,
-        "handle_exec\0".as_ptr() as u32,
-        "\0".as_ptr() as u32,
-    );
-    ...
-```
-
-polling ring buffer：
-
-```rust
-    let map_fd = binding::wasm_bpf_map_fd_by_name(obj_ptr, "rb\0".as_ptr() as u32);
-    if map_fd < 0 {
-        println!("Failed to get map fd: {}", map_fd);
-        return 1;
-    }
-    // binding::wasm
-    let buffer = [0u8; 256];
-    loop {
-        // polling the buffer
-        binding::wasm_bpf_buffer_poll(
-            obj_ptr,
-            map_fd,
-            handle_event as i32,
-            0,
-            buffer.as_ptr() as u32,
-            buffer.len() as i32,
-            100,
-        );
-    }
-```
-
-使用 handler 接收返回值：
-
-```rust
-
-extern "C" fn handle_event(_ctx: u32, data: u32, _data_sz: u32) {
-    let event_slice = unsafe { slice::from_raw_parts(data as *const Event, 1) };
-    let event = &event_slice[0];
-    let pid = event.pid;
-    let ppid = event.ppid;
-    let exit_code = event.exit_code;
-    if event.exit_event == 1 {
-        print!(
-            "{:<8} {:<5} {:<16} {:<7} {:<7} [{}]",
-            "TIME",
-            "EXIT",
-            unsafe { CStr::from_ptr(event.comm.as_ptr() as *const i8) }
-                .to_str()
-                .unwrap(),
-            pid,
-            ppid,
-            exit_code
-        );
-        ...
-}
-```
-
-接下来即可使用 cargo 编译运行：
-
-```console
-$ cargo build --target wasi32-wasm
-$ sudo wasm-bpf ./target/wasm32-wasi/debug/rust-helloworld.wasm
-TIME     EXEC  sh               180245  33666   /bin/sh
-TIME     EXEC  which            180246  180245  /usr/bin/which
-TIME     EXIT  which            180246  180245  [0] (1ms)
-TIME     EXIT  sh               180245  33666   [0] (3ms)
-TIME     EXEC  sh               180247  33666   /bin/sh
-TIME     EXEC  ps               180248  180247  /usr/bin/ps
-TIME     EXIT  ps               180248  180247  [0] (23ms)
-TIME     EXIT  sh               180247  33666   [0] (25ms)
-TIME     EXEC  sh               180249  33666   /bin/sh
-TIME     EXEC  cpuUsage.sh      180250  180249  /root/.vscode-server-insiders/bin/a7d49b0f35f50e460835a55d20a00a735d1665a3/out/vs/base/node/cpuUsage.sh
-```
-
-## 使用 OCI 镜像发布和管理 eBPF 程序
-
-开放容器协议(OCI)是一个轻量级，开放的治理结构，为容器技术定义了规范和标准。在 Linux 基金会的支持下成立，由各大软件企业构成，致力于围绕容器格式和运行时创建开放的行业标准。其中包括了使用 Container Registries 进行工作的 API，正式名称为 OCI 分发规范(又名“distribution-spec”)。
-
-Docker 也宣布推出与 WebAssembly 集成 (Docker+Wasm) 的首个技术预览版，并表示公司已加入字节码联盟 (Bytecode Alliance)，成为投票成员。Docker+Wasm 让开发者能够更容易地快速构建面向 Wasm 运行时的应用程序。
-
-借助于 Wasm 的相关生态，可以非常方便地发布、下载和管理 eBPF 程序，例如，使用 `wasm-to-oci` 工具，可以将 Wasm 程序打包为 OCI 镜像，获取类似 docker 的体验：
-
-```console
-wasm-to-oci push testdata/hello.wasm <oci-registry>.azurecr.io/wasm-to-oci:v1
-wasm-to-oci pull <oci-registry>.azurecr.io/wasm-to-oci:v1 --out test.wasm
-```
-
-我们也将其集成到了 eunomia-bpf 的 ecli 工具中，可以一行命令从云端的 Github Packages 中下载并运行 eBPF 程序，或通过 Github Packages 发布：
-
-```bash
-# push to Github Packages
-ecli push https://ghcr.io/eunomia-bpf/sigsnoop:latest
-# pull from Github Packages
-ecli pull https://ghcr.io/eunomia-bpf/sigsnoop:latest
-# run eBPF program
-ecli run https://ghcr.io/eunomia-bpf/sigsnoop:latest
-```
-
 ## 总结
 
-本以 C/C++/Rust 语言为例，讨论了如何使用 C/C++ 编写 eBPF 程序并编译为 Wasm 模块，使用 Rust 编写 eBPF 程序并编译为 Wasm 模块以及，使用 OCI 镜像发布、部署、管理 eBPF 程序，获得类似 Docker 的体验。更完整的代码，请参考我们的 Github 仓库：<https://github.com/eunomia-bpf/wasm-bpf>
+本以 C/C++ 语言为例，讨论了如何使用 C/C++ 编写 eBPF 程序并编译为 Wasm 模块。更完整的代码，请参考我们的 Github 仓库：<https://github.com/eunomia-bpf/wasm-bpf>.
+
+在下一篇文章中，我们会讨论使用 Rust 编写 eBPF 程序并编译为 Wasm 模块，并使用 OCI 镜像发布、部署、管理 eBPF 程序，获得类似 Docker 的体验。
+
+接下来，我们也会继续完善在 Wasm 中使用多种语言开发和运行 eBPF 程序的体验，提供更完善的示例和用户态开发库/工具链，以及更具体的应用场景。
 
 ## 参考资料
 
@@ -603,8 +397,7 @@ ecli run https://ghcr.io/eunomia-bpf/sigsnoop:latest
 - 龙蜥社区 eBPF 技术探索 SIG <https://openanolis.cn/sig/ebpfresearch>
 - eunomia-bpf 项目：<https://github.com/eunomia-bpf/eunomia-bpf>
 - eunomia-bpf 项目龙蜥 Gitee 镜像：<https://gitee.com/anolis/eunomia>
-- Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁：<https://zhuanlan.zhihu.com/p/604175643>
+- Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁：<https://mp.weixin.qq.com/s/2InV7z1wcWic5ifmAXSiew>
 - 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
 - 教你使用eBPF LSM热修复Linux内核漏洞：<https://www.bilibili.com/read/cv19597563>
-- Docker+Wasm技术预览：<https://zhuanlan.zhihu.com/p/583614628>
-- wasm-to-oci: <https://github.com/engineerd/wasm-to-oci>
+

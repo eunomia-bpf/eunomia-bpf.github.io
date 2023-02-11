@@ -133,7 +133,7 @@ struct bootstrap_bpf {
 
 最后，构建用户态的wasm代码
 
-```
+```sh
 /opt/wasi-sdk/bin/clang -O2 --sysroot=/opt/wasi-sdk/share/wasi-sysroot -Wl,--allow-undefined -o bootstrap.wasm bootstrap.c
 ```
 
