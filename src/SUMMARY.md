@@ -11,33 +11,12 @@
 - [Quick Start](quickstart.md)
 - [Manual(Chinese)](mannual.md)
 
-# Architecture
-
-- [Architecture](architecture/index.md)
-  - [Overview](architecture/overview.md)
-  - [How it works](architecture/reason.md)
-
-# Reference
-
-- [cli tools](ecli/index.md)
-  - [ecli server](ecli/server.md)
-  - [ecli run](ecli/run.md)
-- [Observability exporter](exporter/index.md)
-  - [Usgae](exporter/usage.md)
-  - [Benchmark](exporter/benchmark.md)
-  - [Design(draft)](exporter/design.md)
-- [Compile toolchain](ecc/index.md)
-  - [Github template](ecc/github-template.md)
-  - [Online experience](ecc/online.md)
-  - [Usgae](ecc/usage.md)
-
 # blog
 
 - [当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序](blog/ebpf-wasm.md)
 - [如何在 Linux 显微镜（LMP）项目中开启 eBPF 之旅](blog/lmp-eunomia.md)
 - [eunomia-bpf 0.3.0 发布：只需编写内核态代码，轻松构建、打包、发布完整的 eBPF 应用](blog/0.3.0-release.md)
-
-# tutorial
-
-- [Intorduce to eBPF](tutorial/0_start.md)
-- [opensnoop](tutorial/1_opensnoop.md)
+- [eunomia-bpf：展望 2023，让 eBPF 插上 Wasm 的翅膀](blog/coolbpf-eunomia.md)
+- [Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁](blog/introduce-to-wasm-bpf-bpf-community.md)
+- [在 WebAssembly 中使用 C/C++ 和 libbpf 编写 eBPF 程序](blog/how-to-write-c-in-wasm.md)
+- [在 WebAssembly 中使用 Rust 编写 eBPF 程序并发布 OCI 镜像](blog/how-to-write-rust-in-wasm.md)

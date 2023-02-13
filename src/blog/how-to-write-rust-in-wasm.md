@@ -13,7 +13,7 @@ WebAssembly（Wasm）最初是以浏览器安全沙盒为目的开发的，发�
 在前两篇短文中，我们已经介绍了 Wasm-bpf 的设计思路，以及如何使用 C/C++ 在 Wasm 中编写 eBPF 程序:
 
 - Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁: <https://mp.weixin.qq.com/s/2InV7z1wcWic5ifmAXSiew>
-- 在 WebAssembly 中使用 C/C++ 和 libbpf 编写 eBPF 程序:
+- 在 WebAssembly 中使用 C/C++ 和 libbpf 编写 eBPF 程序: <https://zhuanlan.zhihu.com/p/605542090>
 
 基于 Wasm，我们可以使用多种语言构建 eBPF 应用，并以统一、轻量级的方式管理和发布。以我们构建的示例应用 bootstrap.wasm 为例，使用 C/C++ 构建的镜像大小最小仅为 ~90K，很容易通过网络分发，并可以在不到 100ms 的时间内在另一台机器上动态部署、加载和运行，并且保留轻量级容器的隔离特性。运行时不需要内核特定版本头文件、LLVM、clang 等依赖，也不需要做任何消耗资源的重量级的编译工作。对于 Rust 而言，编译产物会稍大一点，大约在 2M 左右。
 
@@ -35,7 +35,7 @@ WebAssembly（Wasm）最初是以浏览器安全沙盒为目的开发的，发�
 
 ## 使用 Rust 编写 eBPF 程序并编译为 Wasm
 
-Rust 可能是 WebAssembly生态系统中支持最好的语言。Rust 不仅支持几个 WebAssembly编译目标，而且 wasmtime、Spin、Wagi 和其他许多 WebAssembly 工具都是用 Rust 编写的。因此，我们也提供了 Rust 的开发示例：
+Rust 可能是 WebAssembly 生态系统中支持最好的语言。Rust 不仅支持几个 WebAssembly 编译目标，而且 wasmtime、Spin、Wagi 和其他许多 WebAssembly 工具都是用 Rust 编写的。因此，我们也提供了 Rust 的开发示例：
 
 - Wasm 和 WASI 的 Rust 生态系统非常棒
 - 许多 Wasm 工具都是用 Rust 编写的，这意味着有大量的代码可以复用。
@@ -58,15 +58,17 @@ cargo new rust-helloworld
 
 ### 使用 wit-bindgen 生成类型信息，用于内核态和 Wasm 模块之间通信
 
-wit-bindgen 项目是一套用于编译成 WebAssembly，并使用组件模型的语言的绑定生成器。绑定是用 *.wit 文件描述的，它指定了导入、导出，并促进绑定类型定义之间的重复使用。我们可以使用它来生成多种语言的类型定义，以便在内核态的 eBPF 和用户态的 Wasm 模块之间传递数据。
+wit-bindgen 项目是一套着眼于 WebAssembly，并使用组件模型的语言的绑定生成器。绑定是用 *.wit 文件描述的，文件中描述了 Wasm 模块导入、导出的函数和接口。我们可以 wit-bindgen 它来生成多种语言的类型定义，以便在内核态的 eBPF 和用户态的 Wasm 模块之间传递数据。
 
 我们首先需要在 `Cargo.toml` 配置文件中加入 `wasm-bpf-binding` 和 `wit-bindgen-guest-rust` 依赖：
 
 ```toml
-wasm-bpf-binding = { path = "wasm-bpf-binding"}
+wasm-bpf-binding = { path = "wasm-bpf-binding" }
 ```
 
 这个包提供了 wasm-bpf 由运行时提供给 Wasm 模块，用于加载和控制 eBPF 程序的函数的绑定。
+
+- `wasm-bpf-binding` 在 wasm-bpf 仓库中有提供。
 
 ```toml
 [dependencies]
@@ -77,9 +79,9 @@ wit-component = {git = "https://github.com/bytecodealliance/wasm-tools", version
 wit-parser = {git = "https://github.com/bytecodealliance/wasm-tools", version = "0.5.0", rev = "9640d187a73a516c42b532cf2a10ba5403df5946"}
 ```
 
-这个包支持用 wit 类型定义信息，为 rust 客户程序生成绑定，不需要再手动运行 wit-bindgen。
+这个包支持用 wit 文件为 rust 客户程序生成绑定。使用这个包的情况下，我们不需要再手动运行 wit-bindgen。
 
-接下来，我们使用 `btf2wit` 工具，生成 wit 文件。可以使用 `cargo install btf2wit` 安装我们提供的 btf2wit 工具，并编译生成 wit 信息：
+接下来，我们使用 `btf2wit` 工具，从 BTF 信息生成 wit 文件。可以使用 `cargo install btf2wit` 安装我们提供的 btf2wit 工具，并编译生成 wit 信息：
 
 ```console
 cd btf
@@ -87,6 +89,8 @@ clang -target bpf -g event-def.c -c -o event.def.o
 btf2wit event.def.o -o event-def.wit
 cp *.wit ../wit/
 ```
+
+- 其中 `event-def.c` 是包含了我们需要的结构体信息的的 C 程序文件。只有在导出符号中用到的结构体才会被记录在 BTF 中。
 
 对于 C 结构体生成的 wit 信息，大致如下：
 
@@ -242,11 +246,11 @@ ecli pull https://ghcr.io/eunomia-bpf/sigsnoop:latest
 ecli run https://ghcr.io/eunomia-bpf/sigsnoop:latest
 ```
 
-我们已经在 LMP 项目的 eBPF Hub 中，有一些创建符合 OCI 标准的 Wasm-eBPF 应用程序，并利用 ORAS 简化扩展 eBPF 应用开发，分发、加载、运行能力的尝试[11]，以及基于 Wasm 同时使用多种不同语言开发 eBPF 的用户态数据处理插件的实践。基于最新的 Wasm-bpf 框架，有更多的探索性工作可以继续展开。
+我们已经在 LMP 项目的 eBPF Hub 中，有一些创建符合 OCI 标准的 Wasm-eBPF 应用程序，并利用 ORAS 简化扩展 eBPF 应用开发，分发、加载、运行能力的尝试[11]，以及基于 Wasm 同时使用多种不同语言开发 eBPF 的用户态数据处理插件的实践。基于最新的 Wasm-bpf 框架，有更多的探索性工作可以继续展开，我们希望尝试构建一个完整的针对 eBPF 和 Wasm 程序的包管理系统，以及更多的可以探索的应用场景。
 
 ## 总结
 
-本以 Rust 语言为例，讨论了使用 Rust 编写 eBPF 程序并编译为 Wasm 模块以及使用 OCI 镜像发布、部署、管理 eBPF 程序，获得类似 Docker 的体验。更完整的代码，请参考我们的 Github 仓库：<https://github.com/eunomia-bpf/wasm-bpf>.
+本文以 Rust 语言为例，讨论了使用 Rust 编写 eBPF 程序并编译为 Wasm 模块以及使用 OCI 镜像发布、部署、管理 eBPF 程序，获得类似 Docker 的体验。更完整的代码，请参考我们的 Github 仓库：<https://github.com/eunomia-bpf/wasm-bpf>.
 
 接下来，我们会继续完善在 Wasm 中使用多种语言开发和运行 eBPF 程序的体验，提供更完善的示例和用户态开发库/工具链，以及更具体的应用场景。
 
@@ -260,7 +264,6 @@ ecli run https://ghcr.io/eunomia-bpf/sigsnoop:latest
 - eunomia-bpf 项目龙蜥 Gitee 镜像：<https://gitee.com/anolis/eunomia>
 - Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁：<https://mp.weixin.qq.com/s/2InV7z1wcWic5ifmAXSiew>
 - 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
-- 教你使用eBPF LSM热修复Linux内核漏洞：<https://www.bilibili.com/read/cv19597563>
 - Docker+Wasm技术预览：<https://zhuanlan.zhihu.com/p/583614628>
 - LMP eBPF-Hub: <https://github.com/linuxkerneltravel/lmp>
 - wasm-to-oci: <https://github.com/engineerd/wasm-to-oci>
