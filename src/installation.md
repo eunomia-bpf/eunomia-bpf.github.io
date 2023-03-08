@@ -1,28 +1,31 @@
 # Install
 
-## use binary
+- Install the `ecli` tool for running eBPF program from the cloud:
 
-To install `ecli`, just download and use the `binary`:
+    ```console
+    $ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ./ecli
+    $ ./ecli -h
+    Usage: ecli [--help] [--version] [--json] [--no-cache] url-and-args
+    ....
+    ```
 
-```bash
-$ # download the release from https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecli
-$ wget https://aka.pw/bpf-ecli -O ecli && chmod +x ecli
-```
+- Install the `ecc` compiler-toolchain for compiling eBPF kernel code to a `config` file or `Wasm` module(`clang`, `llvm`, and `libclang` should be installed for compiling):
 
-You can also found exporter and other tools in [github.com/eunomia-bpf/eunomia-bpf/releases](https://github.com/eunomia-bpf/eunomia-bpf/releases)
+    ```console
+    $ wget https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecc && chmod +x ./ecc
+    $ ./ecc -h
+    eunomia-bpf compiler
+    Usage: ecc [OPTIONS] <SOURCE_PATH> [EXPORT_EVENT_HEADER]
+    ....
+    ```
 
-## build from source
+  or use the docker image for compile:
 
-please refer to：[documents/build.md](https://github.com/eunomia-bpf/eunomia-bpf/blob/master/documents/build.md)
+    ```bash
+    # for x86_64 and aarch64
+    docker run -it -v `pwd`/:/src/ ghcr.io/eunomia-bpf/ecc-`uname -m`:latest # compile with docker. `pwd` should contains *.bpf.c files and *.h files.
+    ```
 
-## common problem
+- build the compiler, runtime library and tools:
 
-if you get a error like `/usr/lib/x86_64-linux-gnu/libstdc++.so.6: version GLIBCXX_3.4.29 not found` on old version kernels,
-
-try:
-
-```console
-sudo apt-get upgrade libstdc++6
-```
-
-see [https://stackoverflow.com/questions/65349875/where-can-i-find-glibcxx-3-4-29](https://stackoverflow.com/questions/65349875/where-can-i-find-glibcxx-3-4-29)
+  see [build](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/build.md) for building details.

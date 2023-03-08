@@ -3,12 +3,14 @@
 <!-- markdownlint-disable MD025 -->
 
 - [Introduction](introduction.md)
+- [Wasm-bpf subproject](wasm-bpf.md)
 
 # User Manual
 
 - [Installation](installation.md)
 - [Quick Start](quickstart.md)
-- [Manual(Chinese)](mannual.md)
+- [Manual (Chinese)](mannual.md)
+- [Online Demo](online.md)
 
 # blog
 
@@ -20,4 +22,4 @@
 - [如何在 Linux 显微镜（LMP）项目中开启 eBPF 之旅](blog/lmp-eunomia.md)
 - [eunomia-bpf 0.3.0 发布：只需编写内核态代码，轻松构建、打包、发布完整的 eBPF 应用](blog/0.3.0-release.md)
 - [eunomia-bpf：展望 2023，让 eBPF 插上 Wasm 的翅膀](blog/coolbpf-eunomia.md)
--
+- [eBPF 进阶: 内核新特性进展一览](blog/bpf-news.md)
