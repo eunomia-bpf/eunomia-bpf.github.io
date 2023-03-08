@@ -1,16 +1,29 @@
-# eunomia-bpf
+# eunomia-bpf: A Dynamic Loading Framework for CO-RE eBPF program with WASM
 
-[eunomia-bpf](https://github.com/eunomia-bpf/eunomia-bpf) 是一个开源的 eBPF 动态加载运行时和开发工具链，是为了简化 eBPF 程序的开发、构建、分发、运行而设计的，基于 libbpf 的 CO-RE 轻量级开发框架。
+[![Actions Status](https://github.com/eunomia-bpf/eunomia-bpf/workflows/Ubuntu/badge.svg)](https://github.com/eunomia-bpf/eunomia-bpf/actions)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/eunomia-bpf/eunomia-bpf)](https://github.com/eunomia-bpf/eunomia-bpf/releases)
+<!-- [![codecov](https://codecov.io/gh/eunomia-bpf/eunomia-bpf/branch/master/graph/badge.svg)](https://codecov.io/gh/filipdutescu/modern-cpp-template) -->
 
-使用 eunomia-bpf ，可以：
+## Introduction
 
-- 在编写 eBPF 程序或工具时只编写 libbpf 内核态代码，自动获取内核态导出信息；
-- 使用 WASM 进行用户态交互程序的开发，在 WASM 虚拟机内部控制整个 eBPF 程序的加载和执行，以及处理相关数据；
-- eunomia-bpf 可以将预编译的 eBPF 程序打包为通用的 JSON 或 WASM 模块，跨架构和内核版本进行分发，无需重新编译即可动态加载运行。
+`eunomia-bpf` is a dynamic loading library base on `CO-RE libbpf`, and a compile toolchain. With eunomia-bpf, you can:
 
-eunomia-bpf 由一个编译工具链和一个运行时库组成, 对比传统的 BCC、原生 libbpf 等框架，大幅简化了 eBPF 程序的开发流程，在大多数时候只需编写内核态代码，即可轻松构建、打包、发布完整的 eBPF 应用，同时内核态 eBPF 代码保证和主流的 libbpf, libbpfgo, libbpf-rs 等开发框架的 100% 兼容性。需要编写用户态代码的时候，也可以借助 Webassembly 实现通过多种语言进行用户态开发。和 bpftrace 等脚本工具相比, eunomia-bpf 保留了类似的便捷性, 同时不仅局限于 trace 方面, 可以用于更多的场景, 如网络、安全等等。
+- Write eBPF kernel code only and No code generation, we will automatically exposing your data from kernel
+- Compile eBPF kernel code to a `JSON`, you can dynamically load it on another machine without recompile
+- Package, distribute, and run user-space and kernel-space eBPF programs together in `OCI` compatible `WASM` module
+- very small and simple! The library itself `<1MB` and no `LLVM/Clang` dependence, can be embedded easily in you project
+- as fast as `<100ms` and little resource need to dynamically load and run eBPF program
 
-## 项目地址
+With `eunomia-bpf`, you can also get pre-compiled eBPF programs running from the cloud to the kernel in `1` line of bash, kernel version and architecture independent! For example:
 
-- eunomia-bpf 项目 Github 地址: <https://github.com/eunomia-bpf/eunomia-bpf>
-- gitee 镜像: <https://gitee.com/anolis/eunomia>
+```bash
+$ sudo ecli run sigsnoop
+```
+
+Base on `eunomia-bpf`, we have an eBPF pacakge manager in [LMP](https://github.com/linuxkerneltravel/lmp) project, with OCI images and [ORAS](https://github.com/oras-project/oras). Powered by WASM, an eBPF program may be able to:
+
+- have isolation and protection for operating system resources, both user-space and kernel-space
+- safely execute user-defined or community-contributed eBPF code as plug-ins in a software product
+- Write eBPF programs with the language you favor, distribute and run the programs on another kernel or arch.
+
+We have tested on `x86` and `arm` platform, more Architecture tests will be added soon.
