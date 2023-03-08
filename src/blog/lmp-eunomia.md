@@ -5,7 +5,7 @@ eBPF 为 Linux 内核提供了可扩展性，使开发人员能够对 Linux 内�
 
 我们的 [LMP(Linux Microscope) 项目](https://github.com/linuxkerneltravel/lmp) 是为了充分挖掘 ebpf 的可能性而建立的，项目以构建 eBPF 学习社区、成为 eBPF 工具集散地、孵化 eBPF 想法和项目为目标，正在大力建设中。之前我们在 LMP 其中的 eBPF Supermarket 中包含了大量由个人开发者编写的 eBPF 工具，覆盖了网络、性能分析、安全等多种功能，我们正在尝试把其中的一些程序迁移到 eBPF Hub，一些规范化的 eBPF 程序库，可以随时下载运行，或嵌入大型应用程序中作为插件使用。
 
-我们尝试在 eBPF Hub 中，基于 eunomia-bpf 开发框架创建符合 OCI 标准的 WASM 和 eBPF 程序，并利用 ORAS 简化扩展 LMP 的 eBPF 分发、加载、运行能力。
+我们尝试在 eBPF Hub 中，基于 eunomia-bpf 开发框架创建符合 OCI 标准的 Wasm 和 eBPF 程序，并利用 ORAS 简化扩展 LMP 的 eBPF 分发、加载、运行能力。
 
 ## 快速使用
 
@@ -23,27 +23,27 @@ time pid tpid sig ret comm
 
 如果您使用过 bcc 等 eBPF 开发工具，您一定会惊喜于 LMP 的便捷性。LMP 中包含了各种各样的 eBPF 程序，这种便捷的运行，离不开我们基于的底层框架 eunomia-bpf，它完全实现了“一次编译，处处运行”的 eBPF 跨平台目标。在 eunomia-bpf 框架下，LMP 开发的 eBPF 应用不仅可以适配任意架构和不同内核版本，而且还具有轻量级、良好的隔离性等优点，可以作为插件到嵌入大型应用之中。
 
-## eunomia-bpf：结合 eBPF 和 WASM 的轻量级开发框架
+## eunomia-bpf：结合 eBPF 和 Wasm 的轻量级开发框架
 
-作为一个 eBPF 程序的轻量级开发加载框架，eunomia-bpf 基于 WASM 运行时和 BTF 技术，包含了一个用户态动态加载框架/运行时库，以及一个简单的编译 WASM 和 eBPF 字节码的工具链容器。
+作为一个 eBPF 程序的轻量级开发加载框架，eunomia-bpf 基于 Wasm 运行时和 BTF 技术，包含了一个用户态动态加载框架/运行时库，以及一个简单的编译 Wasm 和 eBPF 字节码的工具链容器。
 
-Wasm 是为了一个可移植的目标而设计的，可作为 C/C+/RUST 等高级语言的编译目标，使客户端和服务器应用程序能够在 Web 上部署。目前已经发展成为一个轻量级、高性能、跨平台和多语种的软件沙盒环境，被运用于云原生软件组件。 eunomia-bpf 将 eBPF 用户态的所有控制和数据处理逻辑全部移到 WASM 虚拟机中，通过 WASM module 打包和分发 eBPF 字节码，同时在 WASM 虚拟机内部控制整个 eBPF 程序的加载和执行，将二者的优势结合了起来。
+Wasm 是为了一个可移植的目标而设计的，可作为 C/C+/RUST 等高级语言的编译目标，使客户端和服务器应用程序能够在 Web 上部署。目前已经发展成为一个轻量级、高性能、跨平台和多语种的软件沙盒环境，被运用于云原生软件组件。 eunomia-bpf 将 eBPF 用户态的所有控制和数据处理逻辑全部移到 Wasm 虚拟机中，通过 Wasm module 打包和分发 eBPF 字节码，同时在 Wasm 虚拟机内部控制整个 eBPF 程序的加载和执行，将二者的优势结合了起来。
 
-在 WASM 模块中编写 eBPF 代码和通常熟悉的使用 libbpf 框架或 Coolbpf 开发 eBPF 程序的方式是基本一样的，WASM 的复杂性会被隐藏在 eunomia-bpf 的编译工具链和运行时库中，开发者可以专注于 eBPF 程序的开发和调试，不需要了解 WASM 的背景知识，也不需要担心 WASM 的编译环境配置。
+在 Wasm 模块中编写 eBPF 代码和通常熟悉的使用 libbpf 框架或 Coolbpf 开发 eBPF 程序的方式是基本一样的，Wasm 的复杂性会被隐藏在 eunomia-bpf 的编译工具链和运行时库中，开发者可以专注于 eBPF 程序的开发和调试，不需要了解 Wasm 的背景知识，也不需要担心 Wasm 的编译环境配置。
 
-大致来说，eunomia-bpf 在 WASM 运行时和用户态的 libbpf 中间多加了一层抽象层，使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。通过 WASM module 打包和分发 eBPF 字节码，同时在 WASM 虚拟机内部控制整个 eBPF 程序的加载和执行，eunomia-bpf 就可以将二者的优势结合起来，让任意 eBPF 程序能有如下特性：
+大致来说，eunomia-bpf 在 Wasm 运行时和用户态的 libbpf 中间多加了一层抽象层，使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 Wasm 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。通过 Wasm module 打包和分发 eBPF 字节码，同时在 Wasm 虚拟机内部控制整个 eBPF 程序的加载和执行，eunomia-bpf 就可以将二者的优势结合起来，让任意 eBPF 程序能有如下特性：
 
 - 可移植：让 eBPF 工具和应用不需要进行重新编译即可以跨平台分发，省去了复杂的交叉编译流程；
 - 隔离性：让 eBPF 程序的加载和执行、以及用户态的数据处理流程更加安全可靠。
 - 包管理：完成 eBPF 程序或工具的分发、管理、加载等工作。
 - 敏捷性：使每个人都可以使用官方和未经修改的应用程序来加载自定义扩展，任何 eBPF 程序的错误修复和/或更新都可以在运行时推送和/或测试，而不需要更新和/或重新部署一个新的二进制。
-- 轻量级：与 Linux 容器应用相比，WASM 微服务冷启动的时间是 1%，可以实现 eBPF as a service，让 eBPF 程序的加载和执行变得更加轻量级、快速、简便易行。
+- 轻量级：与 Linux 容器应用相比，Wasm 微服务冷启动的时间是 1%，可以实现 eBPF as a service，让 eBPF 程序的加载和执行变得更加轻量级、快速、简便易行。
 
 我们已经测试了在 x86、ARM 等不同架构不同内核版本的 Linux 系统上，eunomia-bpf 框架都可以使用同一个预编译 eBPF 程序二进制，从云端一行命令获取到本地之后运行。之后 eunomia-bpf 还会添加 RISC-V 等更多架构的支持。
 
 ## 使用 lmp-cli 构建一个 eBPF 项目
 
-如果您是一个 eBPF 工具的使用者，您可以无需任何编译流程，也不需要了解任何 eBPF 和 WASM 的相关知识，使用 `lmp run <name>` 就可以直接运行 LMP 仓库的小程序，其中会调用`lmp pull <name>`命令从云端从库中下载对应的小程序。
+如果您是一个 eBPF 工具的使用者，您可以无需任何编译流程，也不需要了解任何 eBPF 和 Wasm 的相关知识，使用 `lmp run <name>` 就可以直接运行 LMP 仓库的小程序，其中会调用`lmp pull <name>`命令从云端从库中下载对应的小程序。
 
 如果您是一个 eBPF 程序的开发者，让我们开始创建、编译并运行一个简单的程序。在这里，我们使用基简单命令行工具 lmp-cli，概述如何从四个步骤开始构建。
 
@@ -138,7 +138,7 @@ time pid ppid exit_code duration_ns comm filename exit_event
 
 ### **4. 添加**用户态程序
 
-我们提供的是 demo 是 C 语言版本的 WASM 开发框架，在构建好的内核项目文件夹内，使用 `sudo lmp gen-wasm-skel` 生成一个 WASM 用户态项目模板，app.c、eunomia-include、ewasm-skel.h 这些文件会被生成。ewasm-skel.h 是被打包为头文件的内核程序，app.c 是用户态程序的模板文件，我们可以修改它来进行自定义的数据处理，这里不做修改。
+我们提供的是 demo 是 C 语言版本的 Wasm 开发框架，在构建好的内核项目文件夹内，使用 `sudo lmp gen-wasm-skel` 生成一个 Wasm 用户态项目模板，app.c、eunomia-include、ewasm-skel.h 这些文件会被生成。ewasm-skel.h 是被打包为头文件的内核程序，app.c 是用户态程序的模板文件，我们可以修改它来进行自定义的数据处理，这里不做修改。
 
 ```console
 $ sudo lmp gen-wasm-skel
@@ -287,7 +287,7 @@ LMP 目前分为四个子项目：
 - eBPF_Visualization 是为 eBPF 程序管理而开发的 web 管理系统，聚焦 eBPF 数据可视化和内核可视化；
 - eBPF_Documentation 为社区收集、梳理和原创的 eBPF 相关资料和文档。
 
-当前 LMP 项目也存在一些问题，例如对于 eBPF 工具的开发者，存在非常多而且复杂的用户态可视化、展示方案，有许多套系统提供可视化的实现并且有多种语言混合，缺乏展示标准、也难以进行可视化的整合等。因此，我们希望尝试借助 eunomia-bpf 提供的符合 OCI 标准的 WASM 和 eBPF 程序，提供标准化、高可扩展性的基于 eBPF 的可视化、数据展示、分析平台，利用 ORAS 简化扩展 eBPF 的分发、加载、运行能力，为 eBPF 工具的开发者和使用者提供更加简单、高效的体验。
+当前 LMP 项目也存在一些问题，例如对于 eBPF 工具的开发者，存在非常多而且复杂的用户态可视化、展示方案，有许多套系统提供可视化的实现并且有多种语言混合，缺乏展示标准、也难以进行可视化的整合等。因此，我们希望尝试借助 eunomia-bpf 提供的符合 OCI 标准的 Wasm 和 eBPF 程序，提供标准化、高可扩展性的基于 eBPF 的可视化、数据展示、分析平台，利用 ORAS 简化扩展 eBPF 的分发、加载、运行能力，为 eBPF 工具的开发者和使用者提供更加简单、高效的体验。
 
 ### WebAssembly
 
@@ -295,9 +295,9 @@ WebAssembly 是一种新的编码方式，可以在现代的网络浏览器中�
 
 尽管 WebAssembly 是为运行在 Web 上设计的，它也可以在其它的环境中良好地运行。包括从用作测试的最小化 shell ，到完全的应用环境 —— 例如：在数据中心的服务器、物联网（IoT）设备或者是移动/桌面应用程序。甚至，运行嵌入在较大程序里的 WebAssembly 也是可行的。通常，通过维持不需要 Web API 的非 Web 路径，WebAssembly 能够在许多平台上用作便携式的二进制格式，为移植性、工具和语言无关性带来巨大的好处。（因为它支持 c\c++ 级语义）
 
-WASM 的编译和部署流程如下：
+Wasm 的编译和部署流程如下：
 
-![xxx](https://mmbiz.qpic.cn/mmbiz_png/xHicTWic3y1Dtt9CBh8SCA6QQdW7jTrAibKoxAVrXfe0slwf8iav97kbxe2bRVXclfias4hlTDI4fNBQ2RXvFBe9BEA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)​  
+![xxx](https://mmbiz.qpic.cn/mmbiz_png/xHicTWic3y1Dtt9CBh8SCA6QQdW7jTrAibKoxAVrXfe0slwf8iav97kbxe2bRVXclfias4hlTDI4fNBQ2RXvFBe9BEA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)​
 _wasm-compile-deploy_
 
 ### OCI(Open Container Initiative)
@@ -337,16 +337,16 @@ ORAS 的工作原理与您可能已经熟悉的工具(如 docker)类似。它允
 我们所基于的 eunomia-bpf 项目也会继续完善，专注于提供一个底层的 eBPF 开发平台和运行时基础设施，力求带来更好的开发和移植体验：
 
 1. 测试更多平台和内核版本的支持，目前已经在 `ARM64` 和 `x86_64` 上成功移植并运行，接下来会对低内核版本、Android、RISC-V 等平台，以及嵌入式、边缘计算相关的设备进行更进一步的测试；也许在未来，我们还可以提供 Windows 上的 eBPF 程序支持和类似的开发体验；
-2. 提供标准化、稳定的 JSON 和 WASM 接口协议规范以及 OCI 镜像规范，不和任何的供应商或云服务绑定。如果不使用 eunomia-bpf 相关的底层运行时，或使用自定义的 WASM 运行时，也可以通过标准化的接口来使用 LMP 中已经有的大量 eBPF 程序生态。
+2. 提供标准化、稳定的 JSON 和 Wasm 接口协议规范以及 OCI 镜像规范，不和任何的供应商或云服务绑定。如果不使用 eunomia-bpf 相关的底层运行时，或使用自定义的 Wasm 运行时，也可以通过标准化的接口来使用 LMP 中已经有的大量 eBPF 程序生态。
 3. 提供更友好的用户态开发接口，以及更多的用户态开发语言 SDK，例如 Go、Rust、Python 等；
-4. 进行更多关于 WASM 和 eBPF 结合的探索；
+4. 进行更多关于 Wasm 和 eBPF 结合的探索；
 
 ## 参考资料 & 推荐阅读
 
 - [eunomia-bpf: 一个 eBPF 程序动态加载框架](https://github.com/eunomia-bpf/eunomia-bpf)
 - [LMP project: Linux 显微镜](https://github.com/linuxkerneltravel/lmp)
 - [OCI Registry As Storage (oras.land)](https://oras.land/)
-- [当 WASM 遇见 eBPF：使用 WebAssembly 编写、分发、加载运行 eBPF 程序 | 龙蜥技术 (qq.com)](https://mp.weixin.qq.com/s/ryT7OqWngCjcCkfeSKjutA)
+- [当 Wasm 遇见 eBPF：使用 WebAssembly 编写、分发、加载运行 eBPF 程序 | 龙蜥技术 (qq.com)](https://mp.weixin.qq.com/s/ryT7OqWngCjcCkfeSKjutA)
 - [开放容器标准(OCI) 内部分享 (xuanwo.io)](https://xuanwo.io/2019/08/06/oci-intro/)
 - [WebAssembly | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/WebAssembly)
 - [非网络嵌入 - WebAssembly 中文网|Wasm 中文文档](http://webassembly.org.cn/docs/non-web/)

@@ -12,7 +12,7 @@ Wasm-bpf 是一个全新的开源项目[1]，它定义了一套 eBPF 相关系�
 
 也许你也已经看过 Solomon Hykes (Docker的创始人之一)这句话：
 
-> 如果在2008年已经有了 WASM + WASI，我们根本不需要创建 Docker。 Wasm 就有这么重要。 服务端的 WebAssembly 是计算的未来。
+> 如果在2008年已经有了 Wasm + WASI，我们根本不需要创建 Docker。 Wasm 就有这么重要。 服务端的 WebAssembly 是计算的未来。
 
 2022 年，WebAssembly（通常缩写为 Wasm）成为了焦点：新的 Wasm 初创企业出现，老牌公司宣布支持 Wasm，Bytecode Alliance 发布了许多 Wasm 标准，Cloud Native Computing Foundation 举办了两次 WasmDay 活动，而其中最大的 Wasm 用户之一 Figma 被 Adobe 以惊人的 200 亿美元的价格收购[2]。
 
@@ -80,9 +80,9 @@ Linux 内核的主要目的是抽象出硬件或虚拟硬件，并提供一个�
 
 - `可移植`：让 eBPF 工具和应用完全平台无关、可移植，不需要进行重新编译即可以跨平台分发；
 - `隔离性`：借助 Wasm 的可靠性和隔离性，让 eBPF 程序的加载和执行、以及用户态的数据处理流程更加安全可靠；事实上一个 eBPF 应用的用户态控制代码、数据处理代码的部分通常远远多于内核态；
-- `包管理`：借助 WASM 的生态和工具链，完成 eBPF 程序或工具的分发、管理、加载等工作，目前 eBPF 程序或工具生态也缺乏一个通用的包管理或插件管理系统；
+- `包管理`：借助 Wasm 的生态和工具链，完成 eBPF 程序或工具的分发、管理、加载等工作，目前 eBPF 程序或工具生态也缺乏一个通用的包管理或插件管理系统；
 - `跨语言`：目前 eBPF 程序由多种用户态语言开发（如 Go\Rust\C\C++\Python 等），超过 30 种编程语言可以被编译成 WebAssembly 模块，可以允许各种背景的开发人员（C、Go、Rust、Java、TypeScript 等）用他们选择的语言编写 eBPF 的用户态程序，而不需要学习新的语言，甚至我们可以将 Wasm 动态翻译为 eBPF 程序，加载进入内核，或者在 Wasm 轻量级容器中直接生成 eBPF 字节码；
-- `敏捷性`：对于大型的 eBPF 应用程序，可以使用 WASM 作为插件扩展平台：扩展程序可以在运行时直接从控制平面交付和重新加载。这不仅意味着每个人都可以使用官方和未经修改的应用程序来加载自定义扩展，而且任何 eBPF 程序的错误修复和/或更新都可以在运行时推送和/或测试，而不需要更新和/或重新部署一个新的二进制；对于可观测性应用来说，需要更新数据处理插件，也无需经历重新编译部署整个应用程序的过程；
+- `敏捷性`：对于大型的 eBPF 应用程序，可以使用 Wasm 作为插件扩展平台：扩展程序可以在运行时直接从控制平面交付和重新加载。这不仅意味着每个人都可以使用官方和未经修改的应用程序来加载自定义扩展，而且任何 eBPF 程序的错误修复和/或更新都可以在运行时推送和/或测试，而不需要更新和/或重新部署一个新的二进制；对于可观测性应用来说，需要更新数据处理插件，也无需经历重新编译部署整个应用程序的过程；
 - `轻量级`：WebAssembly 微服务消耗 1% 的资源，与 Linux 容器应用相比，冷启动的时间是 1%；对于大量的小型 eBPF 程序需要快速部署和停止的场景，Wasm 的轻量级特性可以大大降低系统的资源开销。
 
 我们已经在 LMP 项目的 eBPF Hub 中，有一些创建符合 OCI 标准的 Wasm-eBPF 应用程序，并利用 ORAS 简化扩展 eBPF 应用开发，分发、加载、运行能力的尝试[11]，以及基于 Wasm 同时使用多种不同语言开发 eBPF 的用户态数据处理插件的实践，基于最新的 Wasm-bpf 框架，有更多的探索性工作可以继续展开。
@@ -134,7 +134,7 @@ Wasm-bpf 编译工具链与运行时模块等目前由龙蜥社区 eBPF 技术�
 - [1] wasm-bpf Github 开源地址：<https://github.com/eunomia-bpf/wasm-bpf>
 - [2] WebAssembly：无需容器的 Docker：<https://zhuanlan.zhihu.com/p/595257541>
 - [3] 云原生项目可扩展性的利器 WebAssembly 简介 <https://mp.weixin.qq.com/s/fap0bl6GFGi8zN5BFLpkCw>
-- [4] 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
+- [4] 当 Wasm 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
 - [5] <https://ebpf.io/>
 - [6] 什么是 eBPF：<https://ebpf.io/what-is-ebpf>
 - [7] Offensive BPF: Understanding and using bpf_probe_write_user <https://embracethered.com/blog/posts/2021/offensive-bpf-libbpf-bpf_probe_write_user/>

@@ -53,8 +53,8 @@ eunomia-bpf 希望成为一个以类库或者松散组合的框架的方式提�
 在 2022 年底，我们尝试将 Coolbpf 和 eunomia-bpf 结合起来，借助 Coolbpf 提供的低内核版本支持的内核态基础设施，以及批量部署应用的能力，以及 eunomia-bpf 提供的结合 Wasm 的用户态开发、分发特性，在 Coolbpf 的大框架下创建了一个新的 eBPF 用户态开发库：[eunomia-lcc](https://gitee.com/anolis/coolbpf/pulls/17)，希望让 Coolbpf 也能：
 
 - 在编写 eBPF 程序或工具时只编写内核态代码，就能自动获取内核态导出信息，自动生成命令行参数、直方图输出等；
-- 使用 WASM 进行用户态交互程序的开发，在 WASM 虚拟机内部控制整个 eBPF 程序的加载和执行，以及处理 eBPF 上报的数据；
-- 可以将预编译的 eBPF 程序打包为通用的 JSON 或 WASM 模块，跨架构和内核版本进行分发，无需重新编译即可动态加载运行。
+- 使用 Wasm 进行用户态交互程序的开发，在 Wasm 虚拟机内部控制整个 eBPF 程序的加载和执行，以及处理 eBPF 上报的数据；
+- 可以将预编译的 eBPF 程序打包为通用的 JSON 或 Wasm 模块，跨架构和内核版本进行分发，无需重新编译即可动态加载运行。
 
 同时还能保留 Coolbpf 的低版本兼容、BTF 自动获取、远程编译等特性，让 eBPF 程序的开发更加简便易行。
 
@@ -62,11 +62,11 @@ eunomia-bpf 希望成为一个以类库或者松散组合的框架的方式提�
 
 ## 参考资料
 
-1. WASM 将引领下一代计算范式 [译]：<https://www.oschina.net/news/214580>
+1. Wasm 将引领下一代计算范式 [译]：<https://www.oschina.net/news/214580>
 2. WebAssembly：2023年的5个预测: <https://www.sohu.com/a/626985661_121119003>
 3. eBPF 技术探索 SIG 主页： [https://openanolis.cn/sig/ebpfresearch](https://openanolis.cn/sig/ebpfresearch)
 4. Coolbpf 项目开源仓库: <https://gitee.com/anolis/coolbpf>
 5. eunomia-bpf 龙蜥社区镜像仓库：[https://gitee.com/anolis/eunomia](https://gitee.com/anolis/eunomia)
 6. eunomia-bpf Github 仓库：<https://github.com/eunomia-bpf/eunomia-bpf>
-7. 当 WASM 遇见 eBPF：使用 WebAssembly 编写、分发、加载运行 eBPF 程序 | 龙蜥技术: <https://developer.aliyun.com/article/1050439>
+7. 当 Wasm 遇见 eBPF：使用 WebAssembly 编写、分发、加载运行 eBPF 程序 | 龙蜥技术: <https://developer.aliyun.com/article/1050439>
 8. 2023，可观测性需求将迎来“爆发之年”？<https://36kr.com/p/dp2063589382737542>

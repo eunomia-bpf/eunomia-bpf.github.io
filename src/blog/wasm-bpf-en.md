@@ -10,7 +10,7 @@ Wasm-bpf is a new open source project [1] that defines a set of abstractions for
 
 Perhaps you have also read this quote from Solomon Hykes (one of the founders of Docker).
 
-> If we already had WASM + WASI in 2008, we wouldn't have needed to create Docker at all. Wasm was that important. Server-side WebAssembly is the future of computing.
+> If we already had Wasm + WASI in 2008, we wouldn't have needed to create Docker at all. Wasm was that important. Server-side WebAssembly is the future of computing.
 
 Because it can't rely on the existing JavaScript engine interfaces available in the browser, most Wasm lightweight containers that run outside the browser today require the use of WASI (WebAssembly System Interface). These runtimes allow Wasm applications to interact with their host operating system in a manner similar (but not identical) to POSIX.
 
@@ -50,8 +50,8 @@ eBPF 从根本上改变了这个公式。 通过允许在操作系统内运行�
 
 Linux 内核的主要目的是抽象出硬件或虚拟硬件，并提供一个一致的API（系统调用），允许应用程序运行和共享资源。 To achieve this, a series of subsystems and layers are maintained to distribute these responsibilities. Each subsystem typically allows some degree of configuration to take into account the different needs of the user. If the desired behavior cannot be configured, it is necessary to change the kernel. Historically, changing the behavior of the kernel, or enabling user-written programs to run in the kernel, has given two options:
 
-| Support a kernel module locally | Write a kernel module |
-| ------------------------------- | ----------------------- |
+| Support a kernel module locally                                                                                                                                         | Write a kernel module                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Change the kernel source code and convince the Linux kernel community that such a change is necessary. Wait a few years for a new kernel version to become a commodity. | Fix it regularly, as every kernel version can break it. Risk breaking your Linux kernel due to the lack of security boundaries |
 
 In practice, neither option is commonly used; the former is too costly, and the latter has almost no portability.
@@ -118,7 +118,7 @@ The Wasm-bpf compilation toolchain and runtime modules are currently developed a
 ## References
 
 - [1] wasm-bpf Github open source address: <https://github.com/eunomia-bpf/wasm-bpf>
-- [2] When WASM meets eBPF: Writing, distributing, loading and running eBPF programs using WebAssembly: <https://zhuanlan.zhihu.com/p/573941739>
+- [2] When Wasm meets eBPF: Writing, distributing, loading and running eBPF programs using WebAssembly: <https://zhuanlan.zhihu.com/p/573941739>
 - [3] <https://ebpf.io/>
 - [4] What is eBPF: <https://ebpf.io/what-is-ebpf>
 - [5] Offensive BPF: Understanding and using bpf_probe_write_user <https://embracethered.com/blog/posts/2021/offensive-bpf-libbpf-bpf_ probe_write_user/>

@@ -10,7 +10,7 @@ Wasm-bpf 是一个全新的开源项目[1]，它定义了一套 eBPF 相关系�
 
 也许你也已经看过 Solomon Hykes (Docker的创始人之一)这句话：
 
-> 如果在2008年已经有了 WASM + WASI，我们根本不需要创建 Docker。 Wasm 就有这么重要。 服务端的 WebAssembly 是计算的未来。
+> 如果在2008年已经有了 Wasm + WASI，我们根本不需要创建 Docker。 Wasm 就有这么重要。 服务端的 WebAssembly 是计算的未来。
 
 因为无法依赖浏览器中现有可用的 JavaScript 引擎接口，所以目前大多数在浏览器外运行的 Wasm 轻量级容器需要使用 WASI（WebAssembly 系统接口）。这些运行时允许 Wasm 应用程序以与 POSIX 类似（但不完全相同）的方式与其 host 操作系统交互。
 
@@ -115,7 +115,7 @@ Wasm-bpf 编译工具链与运行时模块等目前由 eunomia-bpf 开源社区�
 ## 参考资料
 
 - [1] wasm-bpf Github 开源地址：<https://github.com/eunomia-bpf/wasm-bpf>
-- [2] 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
+- [2] 当 Wasm 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
 - [3] <https://ebpf.io/>
 - [4] 什么是 eBPF：<https://ebpf.io/what-is-ebpf>
 - [5] Offensive BPF: Understanding and using bpf_probe_write_user <https://embracethered.com/blog/posts/2021/offensive-bpf-libbpf-bpf_probe_write_user/>

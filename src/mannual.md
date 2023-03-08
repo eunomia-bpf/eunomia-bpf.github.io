@@ -2,20 +2,21 @@
 
 <!-- TOC -->
 
-- [从 _C 语言_ 的 Hello World 开始](#从-c-语言-的-hello-world-开始)
-- [eunomia-bpf 的 Hello World](#eunomia-bpf-的-hello-world)
-- [添加 map 记录数据](#添加-map-记录数据)
-- [使用 ring buffer 往用户态发送数据](#使用-ring-buffer-往用户态发送数据)
-- [使用 perf event array 往用户态发送数据](#使用-perf-event-array-往用户态发送数据)
-- [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
-- [通过 API 进行热插拔和分发](#通过-api-进行热插拔和分发)
-- [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
-  - [example](#example)
-- [使用 WASM 模块分发、动态加载 eBPF 程序](#使用-wasm-模块分发动态加载-ebpf-程序)
-- [使用 WASM 开发和打包 eBPF 程序](#使用-wasm-开发和打包-ebpf-程序)
-- [演示视频](#演示视频)
-- [原理](#原理)
-- [为我们的项目贡献代码](#为我们的项目贡献代码)
+- [eunomia-bpf 用户手册: 让 eBPF 程序的开发和部署尽可能简单](#eunomia-bpf-用户手册-让-ebpf-程序的开发和部署尽可能简单)
+  - [从 _C 语言_ 的 Hello World 开始](#从-c-语言-的-hello-world-开始)
+  - [eunomia-bpf 的 Hello World](#eunomia-bpf-的-hello-world)
+  - [添加 map 记录数据](#添加-map-记录数据)
+  - [使用 ring buffer 往用户态发送数据](#使用-ring-buffer-往用户态发送数据)
+  - [使用 perf event array 往用户态发送数据](#使用-perf-event-array-往用户态发送数据)
+  - [使用 github-template 实现远程编译](#使用-github-template-实现远程编译)
+  - [通过 API 进行热插拔和分发](#通过-api-进行热插拔和分发)
+  - [使用 Prometheus 或 OpenTelemetry 进行可观测性数据收集](#使用-prometheus-或-opentelemetry-进行可观测性数据收集)
+    - [example](#example)
+  - [使用 Wasm 模块分发、动态加载 eBPF 程序](#使用-wasm-模块分发动态加载-ebpf-程序)
+  - [使用 Wasm 开发和打包 eBPF 程序](#使用-wasm-开发和打包-ebpf-程序)
+  - [演示视频](#演示视频)
+  - [原理](#原理)
+  - [为我们的项目贡献代码](#为我们的项目贡献代码)
 
 <!-- /TOC -->
 
@@ -248,9 +249,9 @@ programs:
 
 您可以在任何内核版本上部署导出器，而无需依赖 `LLVM/Clang`。 有关详细信息，请参阅 [eunomia-exporter](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/eunomia-exporter)。
 
-## 使用 WASM 模块分发、动态加载 eBPF 程序
+## 使用 Wasm 模块分发、动态加载 eBPF 程序
 
-eunomia-bpf 库包含一个简单的命令行工具（ecli），包含了一个小型的 WASM 运行时模块和 eBPF 动态装载的功能，可以直接下载下来后进行使用：
+eunomia-bpf 库包含一个简单的命令行工具（ecli），包含了一个小型的 Wasm 运行时模块和 eBPF 动态装载的功能，可以直接下载下来后进行使用：
 
 ```console
 # download the release from https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecli
@@ -301,9 +302,9 @@ running and waiting for the ebpf events from perf event...
 {"ts":0,"pid":2344,"uid":0,"ret":26,"flags":0,"comm":"YDService","fname":"/proc/self/stat"}
 ```
 
-opensnoop 会追踪进程的 open() 调用，即内核中所有的打开文件操作，这里我们可以看到进程的 PID、UID、返回值、调用标志、进程名和文件名等信息。内核态的 eBPF 程序会被包含在 WASM 模块中进行分发，在加载的时候通过 BTF 信息和 libbpf 进行重定位操作，以适应不同的内核版本。同时，由于用户态的相关处理代码完全由 WASM 编写，内核态由 eBPF 指令编写，因此不受具体指令集（x86、ARM 等）的限制，可以在不同的平台上运行。
+opensnoop 会追踪进程的 open() 调用，即内核中所有的打开文件操作，这里我们可以看到进程的 PID、UID、返回值、调用标志、进程名和文件名等信息。内核态的 eBPF 程序会被包含在 Wasm 模块中进行分发，在加载的时候通过 BTF 信息和 libbpf 进行重定位操作，以适应不同的内核版本。同时，由于用户态的相关处理代码完全由 Wasm 编写，内核态由 eBPF 指令编写，因此不受具体指令集（x86、ARM 等）的限制，可以在不同的平台上运行。
 
-## 使用 WASM 开发和打包 eBPF 程序
+## 使用 Wasm 开发和打包 eBPF 程序
 
 同样，以上文所述的 sigsnoop 为例，要跟踪进程的信号发送和接收，我们首先需要在 sigsnoop.bpf.c 中编写内核态的 eBPF 代码：
 
@@ -403,12 +404,12 @@ time pid tpid sig ret comm
 $ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest gen-wasm-skel
 make
   GENERATE_PACKAGE_JSON
-  GEN-WASM-SKEL
+  GEN-Wasm-SKEL
 $ ls
 app.c eunomia-include ewasm-skel.h package.json README.md  sigsnoop.bpf.c  sigsnoop.h
 ```
 
-我们提供的是 C 语言版本的 WASM 开发框架，它包含如下这些文件：
+我们提供的是 C 语言版本的 Wasm 开发框架，它包含如下这些文件：
 
 - ewasm-skel.h：用户态 WebAssembly 开发框架的头文件，包含了预编译的 eBPF 程序字节码，和 eBPF 程序框架辅助信息，用来动态加载；
 - eunomia-include：一些 header-only 的库函数和辅助文件，用来辅助开发；
@@ -459,7 +460,7 @@ int process_event(int ctx, char *e, int str_len)
 $ docker run -it -v `pwd`/:/src/ yunwei37/ebpm:latest build-wasm
 make
   GENERATE_PACKAGE_JSON
-  BUILD-WASM
+  BUILD-Wasm
 build app.wasm success
 $ sudo ./ecli run app.wasm -h
 Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
@@ -471,15 +472,15 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 
 ## 演示视频
 
-我们也有一个在 B 站上的演示视频，演示了如何从 bcc/libbpf-tools 中移植一个 eBPF 工具程序到 eunomia-bpf 中，并且使用 WASM 或 JSON 文件来分发、加载 eBPF 程序：[https://www.bilibili.com/video/BV1JN4y1A76k](https://www.bilibili.com/video/BV1JN4y1A76k)
+我们也有一个在 B 站上的演示视频，演示了如何从 bcc/libbpf-tools 中移植一个 eBPF 工具程序到 eunomia-bpf 中，并且使用 Wasm 或 JSON 文件来分发、加载 eBPF 程序：[https://www.bilibili.com/video/BV1JN4y1A76k](https://www.bilibili.com/video/BV1JN4y1A76k)
 
 `ecli` 是基于我们底层的 eunomia-bpf 库和运行时实现的一个简单的命令行工具。我们的项目架构如下图所示：
 
 ![arch](../img/eunomia-arch.png)
 
-`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
+`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `Wasm` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 Wasm 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
 
-使用 WASM 或 JSON 编译分发 eBPF 程序的流程图大致如下：
+使用 Wasm 或 JSON 编译分发 eBPF 程序的流程图大致如下：
 
 ![flow](../img/eunomia-bpf-flow.png)
 
@@ -487,12 +488,12 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 
 1. 用 eunomia-cc 工具链将内核的 eBPF 代码骨架和字节码编译为 JSON 格式
 2. 在用户态开发的高级语言（例如 C 语言）中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
-3. 将用户态程序和 JSON 数据一起编译为 WASM 字节码并打包为 WASM 模块，然后在目标机器上加载并运行 WASM 程序
-4. 从 WASM 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
+3. 将用户态程序和 JSON 数据一起编译为 Wasm 字节码并打包为 Wasm 模块，然后在目标机器上加载并运行 Wasm 程序
+4. 从 Wasm 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
 
-我们需要完成的仅仅是少量的 native API 和 WASM 运行时的绑定，并且在 WASM 代码中处理 JSON 数据。你可以在一个单一的 `WASM` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 WASM 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
+我们需要完成的仅仅是少量的 native API 和 Wasm 运行时的绑定，并且在 Wasm 代码中处理 JSON 数据。你可以在一个单一的 `Wasm` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 Wasm 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
 
-另外，对于 eunomia-bpf 库而言，不需要 WASM 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 WASM 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
+另外，对于 eunomia-bpf 库而言，不需要 Wasm 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 Wasm 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
 
 ## 原理
 
@@ -500,9 +501,9 @@ Usage: sigsnoop [-h] [-x] [-k] [-n] [-p PID] [-s SIGNAL]
 
 ![arch](../img/eunomia-arch.png)
 
-`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `WASM` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 WASM 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
+`ecli` 工具基于 `ewasm` 库实现，`ewasm` 库包含一个 WAMR(wasm-micro-runtime) 运行时，以及基于 libbpf 库构建的 eBPF 动态装载模块。大致来说，我们在 `Wasm` 运行时和用户态的 `libbpf` 中间多加了一层抽象层（`eunomia-bpf` 库），使得一次编译、到处运行的 eBPF 代码可以从 JSON 对象中动态加载。JSON 对象会在编译时被包含在 Wasm 模块中，因此在运行时，我们可以通过解析 JSON 对象来获取 eBPF 程序的信息，然后动态加载 eBPF 程序。
 
-使用 WASM 或 JSON 编译分发 eBPF 程序的流程图大致如下：
+使用 Wasm 或 JSON 编译分发 eBPF 程序的流程图大致如下：
 
 ```mermaid
 graph TD
@@ -512,7 +513,7 @@ graph TD
   package(可通过网络或其他任意方式进行分发: CO-RE)
 
   subgraph 运行时加载器库
-  a3(运行 WASM 模块配置 eBPF 程序或和 eBPF 程序交互)
+  a3(运行 Wasm 模块配置 eBPF 程序或和 eBPF 程序交互)
   a1(根据 JSON 配置信息动态装载 eBPF 程序)
   a2(根据类型信息和内存布局信息对内核态导出事件进行动态处理)
   a1-->a2
@@ -524,8 +525,8 @@ graph TD
   b1(使用 Clang 编译 eBPF 程序获得包含重定位信息的 bpf.o)
   b2(添加从 eBPF 源代码获取的内核态导出数据的内存布局, 类型信息等)
   b3(打包生成 JSON 数据)
-  b4(打包成 WASM 模块进行分发)
-  b5(可选的用户态数据处理程序编译为 WASM)
+  b4(打包成 Wasm 模块进行分发)
+  b5(可选的用户态数据处理程序编译为 Wasm)
   b2-->b3
   b3-->b5
   b5-->b4
@@ -537,12 +538,12 @@ graph TD
 
 1. 用 eunomia-cc 工具链将内核的 eBPF 代码骨架和字节码编译为 JSON 格式
 2. 在用户态开发的高级语言（例如 C 语言）中嵌入 JSON 数据，并提供一些 API 用于操作 JSON 形态的 eBPF 程序骨架
-3. 将用户态程序和 JSON 数据一起编译为 WASM 字节码并打包为 WASM 模块，然后在目标机器上加载并运行 WASM 程序
-4. 从 WASM 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
+3. 将用户态程序和 JSON 数据一起编译为 Wasm 字节码并打包为 Wasm 模块，然后在目标机器上加载并运行 Wasm 程序
+4. 从 Wasm 模块中加载内嵌的 JSON 数据，用 eunomia-bpf 库动态装载和配置 eBPF 程序骨架。
 
-我们需要完成的仅仅是少量的 native API 和 WASM 运行时的绑定，并且在 WASM 代码中处理 JSON 数据。你可以在一个单一的 `WASM` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 WASM 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
+我们需要完成的仅仅是少量的 native API 和 Wasm 运行时的绑定，并且在 Wasm 代码中处理 JSON 数据。你可以在一个单一的 `Wasm` 模块中拥有多个 `eBPF` 程序。如果不使用我们提供的 Wasm 运行时，或者想要使用其他语言进行用户态的 eBPF 辅助代码的开发，在我们提供的 `eunomia-bpf` 库基础上完成一些 WebaAssembly 的绑定即可。
 
-另外，对于 eunomia-bpf 库而言，不需要 WASM 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 WASM 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
+另外，对于 eunomia-bpf 库而言，不需要 Wasm 模块和运行时同样可以启动和动态加载 eBPF 程序，不过此时动态加载运行的就只是内核态的 eBPF 程序字节码。你可以手动或使用任意语言修改 JSON 对象来控制 eBPF 程序的加载和参数，并且通过 eunomia-bpf 自动获取内核态上报的返回数据。对于初学者而言，这可能比使用 WebAssembly 更加简单方便：只需要编写内核态的 eBPF 程序，然后使用 eunomia-cc 工具链将其编译为 JSON 格式，最后使用 eunomia-bpf 库加载和运行即可。完全不用考虑任何用户态的辅助程序，包括 Wasm 在内。具体可以参考我们的使用手册[7]或示例代码[8]。
 
 ## 为我们的项目贡献代码
 

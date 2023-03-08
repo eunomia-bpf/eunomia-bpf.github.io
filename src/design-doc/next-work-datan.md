@@ -79,7 +79,7 @@ SPRIGHT: Extracting the Server from Serverless Computing! High performance eBPF-
     iptables [36, 45], resulting in substantial dataplane performance
     improvement without dedicated resource consumption, compared
     to a constantly running queue proxy that depends on the kernel
-    protocol stack 
+    protocol stack
 
     感觉思路挺类似的：RDMA vs XDP/TC，然后构造和恢复对应的状态，并且加速数据传输
 
@@ -97,7 +97,7 @@ SPRIGHT: Extracting the Server from Serverless Computing! High performance eBPF-
 
     Shillaker S, Pietzuch P. Faasm: Lightweight isolation for efficient stateful serverless computing[C]//2020 {USENIX} Annual Technical Conference ({USENIX}{ATC} 20). 2020: 419-433.
 
-## 2. TVM / Taichi / OPAE：让 eBPF 和 WASI/WASM 结合起来，打通用户态和内核态的可编程机制，实现更为通用的并行计算模型（可能更偏向于编译后端层面）
+## 2. TVM / Taichi / OPAE：让 eBPF 和 WASI/Wasm 结合起来，打通用户态和内核态的可编程机制，实现更为通用的并行计算模型（可能更偏向于编译后端层面）
 
 Taichi：High-performance parallel programming in Python
 
@@ -105,20 +105,20 @@ Taichi：High-performance parallel programming in Python
 - <https://github.com/taichi-dev/taichi>
 - <https://docs.taichi-lang.org/docs/compilation>
 - Taichi + MPI: <https://zhuanlan.zhihu.com/p/581896682>
-- <https://github.com/AmesingFlank/taichi.js> taichi 后端生成的代码编译为 WASM，然后在浏览器里面运行
+- <https://github.com/AmesingFlank/taichi.js> taichi 后端生成的代码编译为 Wasm，然后在浏览器里面运行
 - 尝试把 Taichi 的 wasm 后端放在 WAMR 这样的服务器端的 wasm runtime 里面调度和并行加速；
 
 TVM: An Automated End-to-End Optimizing Compiler for Deep Learning
 
 - （本质上很多的工作可能都是会在编译器的层面进行的）
-- <https://tvm.apache.org/2020/05/14/compiling-machine-learning-to-webassembly-and-webgpu>，还是用 JS 的胶水代码，能否迁移到使用 WASI/WASM，在服务器端调度和运行？
+- <https://tvm.apache.org/2020/05/14/compiling-machine-learning-to-webassembly-and-webgpu>，还是用 JS 的胶水代码，能否迁移到使用 WASI/Wasm，在服务器端调度和运行？
 - <https://tvm.apache.org/2018/03/12/webgl>
 - <https://github.com/WebAssembly/wasi-nn>
 - 更进一步，有没有可能把生成的神经网络塞进 eBPF 里面运行？
 
 ### 需要结合编译器做更进一步的探索
 
-### eunomia-bpf 轻量级 eBPF + WASM 编译、运行时开源项目：希望在编译方面有更多的探索
+### eunomia-bpf 轻量级 eBPF + Wasm 编译、运行时开源项目：希望在编译方面有更多的探索
 
 通用、轻量级多语言下一代 ebpf 开发框架/组件库:
 
@@ -130,8 +130,8 @@ TVM: An Automated End-to-End Optimizing Compiler for Deep Learning
 
 ### 可能的方向
 
-- 多种语言混合，多种编程模型混合，简化 WASM + eBPF 的编译和使用方式；
-- 自动调度和并行化轻量级 eBPF 函数和 WASM 轻量级容器；
+- 多种语言混合，多种编程模型混合，简化 Wasm + eBPF 的编译和使用方式；
+- 自动调度和并行化轻量级 eBPF 函数和 Wasm 轻量级容器；
 - 和 MLIR 之类的一些新技术相结合，进行更进一步的编译优化和场景拓展；
 
 ## 3. ZKP 移植工作 & 其他一些证明可行的移植工作（可能更多偏向于软件工程化）

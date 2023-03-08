@@ -263,7 +263,7 @@ ecli run https://ghcr.io/eunomia-bpf/sigsnoop:latest
 - eunomia-bpf 项目：<https://github.com/eunomia-bpf/eunomia-bpf>
 - eunomia-bpf 项目龙蜥 Gitee 镜像：<https://gitee.com/anolis/eunomia>
 - Wasm-bpf: 架起 Webassembly 和 eBPF 内核可编程的桥梁：<https://mp.weixin.qq.com/s/2InV7z1wcWic5ifmAXSiew>
-- 当 WASM 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
+- 当 Wasm 遇见 eBPF ：使用 WebAssembly 编写、分发、加载运行 eBPF 程序：<https://zhuanlan.zhihu.com/p/573941739>
 - Docker+Wasm技术预览：<https://zhuanlan.zhihu.com/p/583614628>
 - LMP eBPF-Hub: <https://github.com/linuxkerneltravel/lmp>
 - wasm-to-oci: <https://github.com/engineerd/wasm-to-oci>

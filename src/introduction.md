@@ -1,29 +1,34 @@
-# eunomia-bpf: A Dynamic Loading Framework for CO-RE eBPF program with WASM
+![logo](img/logo.png)
+
+# eunomia-bpf: simplify and enhance eBPF with CO-RE[^1] and WebAssembly[^2]
 
 [![Actions Status](https://github.com/eunomia-bpf/eunomia-bpf/workflows/Ubuntu/badge.svg)](https://github.com/eunomia-bpf/eunomia-bpf/actions)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/eunomia-bpf/eunomia-bpf)](https://github.com/eunomia-bpf/eunomia-bpf/releases)
-<!-- [![codecov](https://codecov.io/gh/eunomia-bpf/eunomia-bpf/branch/master/graph/badge.svg)](https://codecov.io/gh/filipdutescu/modern-cpp-template) -->
+[![codecov](https://codecov.io/gh/eunomia-bpf/eunomia-bpf/branch/master/graph/badge.svg?token=YTR1M16I70)](https://codecov.io/gh/eunomia-bpf/eunomia-bpf)
+[![DeepSource](https://deepsource.io/gh/eunomia-bpf/eunomia-bpf.svg/?label=active+issues&show_trend=true&token=rcSI3J1-gpwLIgZWtKZC-N6C)](https://deepsource.io/gh/eunomia-bpf/eunomia-bpf/?ref=repository-badge)
+[![CodeFactor](https://www.codefactor.io/repository/github/eunomia-bpf/eunomia-bpf/badge)](https://www.codefactor.io/repository/github/eunomia-bpf/eunomia-bpf)
+
+**A compiler and runtime framework to help you build and distribute eBPF program easier.**
 
 ## Introduction
 
-`eunomia-bpf` is a dynamic loading library base on `CO-RE libbpf`, and a compile toolchain. With eunomia-bpf, you can:
+`eunomia-bpf` is a dynamic loading library/runtime and a compile toolchain framework, aim at helping you build and distribute eBPF programs easier.
 
-- Write eBPF kernel code only and No code generation, we will automatically exposing your data from kernel
-- Compile eBPF kernel code to a `JSON`, you can dynamically load it on another machine without recompile
-- Package, distribute, and run user-space and kernel-space eBPF programs together in `OCI` compatible `WASM` module
-- very small and simple! The library itself `<1MB` and no `LLVM/Clang` dependence, can be embedded easily in you project
-- as fast as `<100ms` and little resource need to dynamically load and run eBPF program
+With eunnomia-bpf, you can:
 
-With `eunomia-bpf`, you can also get pre-compiled eBPF programs running from the cloud to the kernel in `1` line of bash, kernel version and architecture independent! For example:
+- A library to simplify `writing` eBPF programs:
+  - simplify building CO-RE[^1] `libbpf` eBPF applications: [write eBPF kernel code only](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md#simplify-building-co-re-libbpf-ebpf-applications) and automatically exposing your data with `perf event` or `ring buffer` from kernel.
+  - [Automatically sample the data](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md#automatically-sample-the-data-and-print-hists-in-userspace) from hash maps and print `hists` in userspace.
+  - [Automatically generate](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md#automatically-generate-and-config-command-line-arguments) and config `command line arguments` for eBPF programs.
+  - You can writing the kernel part in both `BCC` and `libbpf` styles.
+- Build eBPF programs with `Wasm`[^2]: see [`Wasm-bpf`](https://github.com/eunomia-bpf/wasm-bpf) project
+  - Runtime, libraries and toolchains to [write eBPF with Wasm](https://github.com/eunomia-bpf/wasm-bpf) in C/C++, Rust, Go...covering the use cases from `tracing`, `networking`, `security`.
+- simplify `distributing` eBPF programs:
+  - A [tool](ecli/) for push, pull and run pre-compiled eBPF programs as `OCI` images in Wasm module
+  - Run eBPF programs from `cloud` or `URL` within [`1` line of bash](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md#dynamic-load-and-run-co-re-ebpf-kernel-code-from-the-cloud-with-url-or-oci-image) without recompiling, kernel version and architecture independent.
+  - [Dynamically load](bpf-loader) eBPF programs with `JSON` config file or `Wasm` module.
 
-```bash
-$ sudo ecli run sigsnoop
-```
+For more information, see [https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md](https://github.com/eunomia-bpf/eunomia-bpf/tree/master/documents/introduction.md).
 
-Base on `eunomia-bpf`, we have an eBPF pacakge manager in [LMP](https://github.com/linuxkerneltravel/lmp) project, with OCI images and [ORAS](https://github.com/oras-project/oras). Powered by WASM, an eBPF program may be able to:
-
-- have isolation and protection for operating system resources, both user-space and kernel-space
-- safely execute user-defined or community-contributed eBPF code as plug-ins in a software product
-- Write eBPF programs with the language you favor, distribute and run the programs on another kernel or arch.
-
-We have tested on `x86` and `arm` platform, more Architecture tests will be added soon.
+[^1]: CO-RE: [Compile Once – Run Everywhere](https://facebookmicrosites.github.io/bpf/blog/2020/02/19/bpf-portability-and-co-re.html)
+[^2]: WebAssembly or Wasm: https://webassembly.org/
