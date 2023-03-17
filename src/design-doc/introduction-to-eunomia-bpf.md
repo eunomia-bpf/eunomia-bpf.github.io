@@ -16,3 +16,5 @@ eunomia-bpf is a development framework for eBPF and Wasm programs that helps you
 - simplify `distributing` eBPF programs: allows you to run eBPF programs from the cloud or URL with just one line of bash without recompiling. You can also dynamically load eBPF programs with a JSON config file or Wasm module.
 
 The eunomia-bpf community focuses on simplifying the process of writing, distributing, and dynamically loading eBPF programs, as well as exploring toolchains, runtimes, and other technologies that combine eBPF and Wasm.
+
+郑昱笙是浙江大学的大四学生，是 eunomia-bpf 开源社区的发起者，社区关注于简化 eBPF 程序的编写、分发和动态加载流程，以及探索 eBPF 和 Wasm 相结合的工具链、运行时等技术。郑昱笙主导开发的 eunomia-bpf 社区项目的前身 Eunomia 项目，获得了全国大学生系统能力大赛操作系统设计赛决赛一等奖，eBPF 程序的用户态开发和分发框架 eunomia-bpf 项目于 2022 年 8 月在阿里龙蜥社区中发起和孵化，并由中科院软件所 PLCT 实验室赞助和持续维护。郑昱笙和 eunomia-bpf 社区的其他伙伴一同创建和维护了第一个在 Wasm 上构建、发布和运行通用 eBPF 程序的运行时与工具链；重构 bcc 运行时以支持 bcc 代码向 libbpf 转换和支持 CO-RE 特性，推动 bcc 生态向 libbpf 相关生态转化；并且第一个尝试使用了 ChatGPT 等大语言模型生成 eBPF 程序，通过自然语言追踪内核和交互式地辅助学习BPF 相关开发。
