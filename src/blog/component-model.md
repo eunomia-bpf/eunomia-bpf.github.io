@@ -1,6 +1,22 @@
-# Wasm组件模型与模块
+# Wasm 组件模型与模块
 
-## Wasm模块
+## 引言
+
+WebAssembly（简称Wasm）是一种为现代Web应用程序设计的二进制指令格式，它为基于浏览器的应用提供了一种高性能、安全且跨平台的解决方案。Wasm的目标是实现一种在Web平台上快速执行代码的通用方法，从而能够让各种高级编程语言在Web上运行得更快、更安全。
+
+Wasm组件模型是一种以模块为基础的编程范式，它允许开发者将复杂的应用程序拆分成可复用的组件，从而简化开发过程、提高代码的可维护性和可扩展性。在 Wasm 中，组件模型的核心是模块，它封装了代码和数据，以及与其他模块之间的接口。通过引入组件模型，我们可以更好地管理和组织Wasm应用程序，将关注点从单一、庞大的代码库转向模块化、可复用的组件。本文将详细介绍Wasm 组件模型与模块的基本概念、实际应用、生态系统以及未来发展。
+
+### Wasm 的发展背景
+
+随着Web技术的快速发展，越来越多的复杂应用程序需要在浏览器中运行。传统的JavaScript解释器在处理这些复杂的任务时，性能往往不能满足需求。因此，WebAssembly应运而生，它作为一种新的编程模型，能够有效地提高Web应用程序的性能和安全性。
+
+### Wasm 的目标和优势
+
+## Wasm 组件模型概述
+
+### 组件模型的定义
+
+## Wasm 模块
 
 如果写过Wasm程序的话可能会对Wasm模块有一定了解。一个Wasm模块是一个包含了一堆东西的Wasm程序文件，有文本（WAT）和二进制两种形式（两种形式等价，可以互相转换）。
 
@@ -15,12 +31,12 @@ Wasm模块里大概包含：
 Wasm模块看起来很美好，但其实存在很多问题，比如：
 
 - 函数的返回值/参数不能是浮点数/整数之外的类型。
-- - 那如果我们要传递字符串、结构体之类的怎么办呢？
+  - 那如果我们要传递字符串、结构体之类的怎么办呢？
   - 在同一个模块内，编译器可以有一套自己的ABI，只要模块内能工作就可以。
   - 跨模块怎么办？没办法，没有统一的标准。一般我们采取把指针转成整数的方式来传递，但没有什么统一的标准。
 
 - Wasm模块无法定义interface（类似于OOP里的接口）
-- - 根据上文我们说的，Wasm模块可以指定这个模块需要导入的函数。
+  - 根据上文我们说的，Wasm模块可以指定这个模块需要导入的函数。
   - 但只有函数是不够的，函数是无状态的，单纯的函数也不便于封装。
   - 如果我们想导入一个实现了一组特定函数的对象怎么办？（interface）
 
@@ -31,7 +47,7 @@ Wasm模块看起来很美好，但其实存在很多问题，比如：
 - 提供标准的、通用的、跨平台的接口用以传递复杂的数据类型
 - 组件模型给我们提供了interface。Interface指定一组函数签名，Wasm程序可以导出或者导入一个实现了特定interface的对象，使用interface的一方不需要关心interface的具体实现。
 
-- 更具体的改进方案可以见https://github.com/WebAssembly/component-model/blob/main/design/high-level/UseCases.md
+- 更具体的改进方案可以见<https://github.com/WebAssembly/component-model/blob/main/design/high-level/UseCases.md>
 
 总而言之，Wasm组件大概要实现这些目标：
 
@@ -127,13 +143,13 @@ void my_world_string_free(my_world_string_t *ret);
 
 ### 不同组件协同工作
 
-https://github.com/eunomia-bpf/c-rust-component-test
+<https://github.com/eunomia-bpf/c-rust-component-test>
 
 我们在这个例子中演示了通过wit-bindgen分别用C和Rust来编写组件，并且让他们互相调用，然后在wasmtime这个支持组件模型的Wasm运行时上跑。
 
 ## Rust + wit-bingen
 
-我们做了一个用Rust编写eBPF用户态程序，并使用btf2wit生成内核结构体的WIT定义随后解析数据的例子，具体可以见https://github.com/eunomia-bpf/wasm-bpf/tree/main/examples/rust-bootstrap
+我们做了一个用Rust编写eBPF用户态程序，并使用btf2wit生成内核结构体的WIT定义随后解析数据的例子，具体可以见<https://github.com/eunomia-bpf/wasm-bpf/tree/main/examples/rust-bootstrap>
 
 ## 关于WIT和组件模型的更多信息
 
@@ -146,18 +162,15 @@ https://github.com/eunomia-bpf/c-rust-component-test
 
 ## eunomia-bpf所做的工作
 
-- https://github.com/eunomia-bpf/c-rust-component-test
+- <https://github.com/eunomia-bpf/c-rust-component-test>
   - 一个让不同语言写的Wasm组件协同工作的例子
 
-- https://github.com/eunomia-bpf/btf2wit
+- <https://github.com/eunomia-bpf/btf2wit>
   - 一个从BTF（BPF Type Format，一种让eBPF程序用起来更舒服的调试信息格式）生成WIT的小工具。
 
 ## 参考资料
 
-- https://github.com/WebAssembly/component-model/blob/main/design/high-level/Goals.md
-
-- https://github.com/WebAssembly/component-model/blob/main/design/high-level/UseCases.md
-
-- https://github.com/WebAssembly/component-model/blob/main/design/high-level/Choices.md
-
-- https://github.com/WebAssembly/component-model/blob/main/design/high-level/FAQ.md
+- <https://github.com/WebAssembly/component-model/blob/main/design/high-level/Goals.md>
+- <https://github.com/WebAssembly/component-model/blob/main/design/high-level/UseCases.md>
+- <https://github.com/WebAssembly/component-model/blob/main/design/high-level/Choices.md>
+- <https://github.com/WebAssembly/component-model/blob/main/design/high-level/FAQ.md>
